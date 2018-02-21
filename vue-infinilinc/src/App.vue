@@ -12,13 +12,18 @@
         <v-spacer></v-spacer>
         <v-spacer></v-spacer>
         <v-toolbar-items
+        >
+          <v-btn
           v-for="(item, i) in items"
           :key="i"
           class="hidden-xs-only"
-        >
-          <v-btn flat :to="item.path">
+          flat 
+          :to="item.path">
             {{ item.title }}
           </v-btn>
+          <v-btn flat v-if="authenticated" @click="onLogout">
+          Logout
+        </v-btn>
         </v-toolbar-items>
       <v-spacer></v-spacer>
     </v-toolbar>
@@ -48,11 +53,21 @@ export default {
       if (window.innerWidth > 600) {
         this.$store.commit('setShowSidebar', false)
       }
+    },
+    onLogout () {
+      this.$store.dispatch('logout')
     }
   },
   computed: {
     items () {
-      return this.$store.getters.getMenuItems
+      if (this.authenticated) {
+        return this.$store.getters.getMenuItemsUser
+      } else {
+        return this.$store.getters.getMenuItems
+      }
+    },
+    authenticated () {
+      return this.$store.getters.user !== null && this.$store.getters.user !== undefined
     }
   },
   name: 'App'
