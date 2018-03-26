@@ -4,6 +4,7 @@ import homepage from '@/components/homepage'
 import profile from '@/components/users/profile'
 import signin from '@/components/users/signin'
 import signup from '@/components/users/signup'
+import conversation from '@/components/conversations/conversation'
 
 Vue.use(Router)
 
@@ -28,6 +29,11 @@ export default new Router({
       path: '/profile',
       name: 'profile',
       component: profile
+    },
+    {
+      path: '/conversation',
+      name: 'conversation',
+      component: conversation
     }
   ],
   mode: 'history'
