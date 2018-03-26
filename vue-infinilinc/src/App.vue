@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <sidebar/>
-    <v-toolbar app clipped-left fixed>
+      <v-toolbar app clipped-left fixed>
         <v-toolbar-side-icon class="hidden-sm-and-up" @click.stop="toggleSidebar"></v-toolbar-side-icon>
         <v-spacer></v-spacer>
         <v-toolbar-title>
@@ -11,8 +11,7 @@
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-spacer></v-spacer>
-        <v-toolbar-items
-        >
+        <v-toolbar-items>
           <v-btn
           v-for="(item, i) in items"
           :key="i"
