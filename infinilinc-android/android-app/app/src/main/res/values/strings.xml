@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Project Research</string>
+    <string name="nfc_service_desc">Connects NativeNFC devices when near</string>
+    <string name="aid_desc">AID used for NativeNFC connections</string>
+    <string name="ui_enable_nfc">Enable NFC</string>
+    <string name="ui_disable_nfc">Disable NFC</string>
+    <string name="ui_card_emulation">Card Emulation</string>
+    <string name="ui_reader">Reader</string>
+    <string name="ui_disconnected">Disconnected</string>
+    <string name="ui_nfc_button_label">NFC Control</string>
+    <string name="reader_connected">Reader is connected to card app</string>
+    <string name="reader_disconnected">Reader was disconnected from card app</string>
+    <string name="card_connected">Card app is connected to reader</string>
+    <string name="card_disconnected">Card app was disconnected from reader</string>
+</resources>
