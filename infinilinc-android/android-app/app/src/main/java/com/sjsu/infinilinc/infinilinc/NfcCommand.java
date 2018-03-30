@@ -1,4 +1,4 @@
-package com.example.conner.projectresearch;
+package com.sjsu.infinilinc.infinilinc;
 
 import android.nfc.tech.IsoDep;
 
@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.example.conner.projectresearch.NfcCommand.TYPE.READ;
-import static com.example.conner.projectresearch.NfcCommand.TYPE.SELECT_AID;
-import static com.example.conner.projectresearch.NfcCommand.TYPE.SET_DATA_SIZE;
-import static com.example.conner.projectresearch.NfcCommand.TYPE.SEND;
-import static com.example.conner.projectresearch.NfcCommand.TYPE.INVALID;
+import static com.sjsu.infinilinc.infinilinc.NfcCommand.TYPE.READ;
+import static com.sjsu.infinilinc.infinilinc.NfcCommand.TYPE.SELECT_AID;
+import static com.sjsu.infinilinc.infinilinc.NfcCommand.TYPE.SET_DATA_SIZE;
+import static com.sjsu.infinilinc.infinilinc.NfcCommand.TYPE.SEND;
+import static com.sjsu.infinilinc.infinilinc.NfcCommand.TYPE.INVALID;
 
-public class NfcCommand {
+class NfcCommand {
     private static byte[] AID               = {(byte)0xF6, (byte)0x62, (byte)0x58, (byte)0x1E,
                                                (byte)0x83, (byte)0x64, (byte)0xCA, (byte)0xDF,
                                                (byte)0x67, (byte)0x49, (byte)0x6A, (byte)0x2B,
@@ -39,7 +39,7 @@ public class NfcCommand {
     private byte[] responsePayload;
     private boolean moreFragments;
 
-    public NfcCommand(TYPE t) {
+    NfcCommand(TYPE t) {
         dataSize = 0;
         payload = null;
         responsePayload = null;
@@ -48,7 +48,7 @@ public class NfcCommand {
         type = t;
     }
 
-    public NfcCommand(byte[] bytes) {
+    NfcCommand(byte[] bytes) {
         dataSize = 0;
         payload = null;
         responsePayload = null;
@@ -130,19 +130,19 @@ public class NfcCommand {
         return SET_DATA_SIZE;
     }
 
-    public String getPayloadString() {
+    String getPayloadString() {
         return new String(payload);
     }
 
-    public byte[] getPayloadBytes() {
+    byte[] getPayloadBytes() {
         return payload;
     }
 
-    public void setPayload(byte[] bytes) {
+    void setPayload(byte[] bytes) {
         payload = bytes;
     }
 
-    public void setPayload(String str) {
+    void setPayload(String str) {
         payload = new byte[str.length()];
 
         for(int i = 0; i < str.length(); i++) {
@@ -150,15 +150,15 @@ public class NfcCommand {
         }
     }
 
-    public byte[] getResponsePayloadBytes() {
+    byte[] getResponsePayloadBytes() {
         return responsePayload;
     }
 
-    public String getResponsePayloadString() {
+    String getResponsePayloadString() {
         return (responsePayload != null) ? new String(responsePayload) : null;
     }
 
-    public TYPE getType() {
+    TYPE getType() {
         return type;
     }
 
@@ -170,11 +170,11 @@ public class NfcCommand {
         return c;
     }
 
-    public int getDataSize() {
+    int getDataSize() {
         return dataSize;
     }
 
-    public boolean setDataSize(int size) {
+    boolean setDataSize(int size) {
         if((size < 0) || (size > 0xFFFF)) {
             return false;
         }
@@ -184,7 +184,7 @@ public class NfcCommand {
         return true;
     }
 
-    public boolean send(IsoDep tag) {
+    boolean send(IsoDep tag) {
         switch(type) {
             case SEND:          return sendCmdTx(tag);
             case READ:          return sendCmdRx(tag);
@@ -346,11 +346,11 @@ public class NfcCommand {
         return true;
     }
 
-    public boolean more() {
+    boolean more() {
         return moreFragments;
     }
 
-    public void setMore(boolean m) {
+    void setMore(boolean m) {
         moreFragments = m;
     }
 }

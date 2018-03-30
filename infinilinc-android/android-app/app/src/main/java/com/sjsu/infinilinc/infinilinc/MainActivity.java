@@ -1,4 +1,4 @@
-package com.example.conner.projectresearch;
+package com.sjsu.infinilinc.infinilinc;
 
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -18,7 +18,8 @@ public class MainActivity extends NfcActivity {
     private WebView mainWebView;
     private WebSettings webSettings;
 
-    private String appDomain = "192.168.1.70";
+    private String appDomain = "infinilinc.firebaseapp.com";
+    private String appPath = "/debug.html";
 
     @Override
     void onConnect() {
@@ -103,7 +104,8 @@ public class MainActivity extends NfcActivity {
 
             @Override
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                Log.d(getClass().getName(), consoleMessage.sourceId() + ":" + consoleMessage.lineNumber() + " -- " + consoleMessage.message());
+                Log.d(getClass().getName(), consoleMessage.sourceId() + ":" +
+                        consoleMessage.lineNumber() + " -- " + consoleMessage.message());
                 return true;
             }
         });
@@ -114,7 +116,7 @@ public class MainActivity extends NfcActivity {
 
         mainWebView.addJavascriptInterface(this, "nfc");
 
-        mainWebView.loadUrl("http://" + appDomain + "/");
+        mainWebView.loadUrl("https://" + appDomain + appPath);
     }
 
     @Override

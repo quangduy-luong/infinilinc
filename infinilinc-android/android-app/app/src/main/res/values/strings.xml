@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Project Research</string>
+    <string name="app_name">Infinilinc</string>
     <string name="nfc_service_desc">Connects NativeNFC devices when near</string>
     <string name="aid_desc">AID used for NativeNFC connections</string>
     <string name="ui_enable_nfc">Enable NFC</string>

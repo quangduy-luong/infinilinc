@@ -1,8 +1,8 @@
-package com.example.conner.projectresearch;
+package com.sjsu.infinilinc.infinilinc;
 
-import static com.example.conner.projectresearch.NfcResponse.TYPE.ERROR;
-import static com.example.conner.projectresearch.NfcResponse.TYPE.INVALID;
-import static com.example.conner.projectresearch.NfcResponse.TYPE.OK;
+import static com.sjsu.infinilinc.infinilinc.NfcResponse.TYPE.ERROR;
+import static com.sjsu.infinilinc.infinilinc.NfcResponse.TYPE.INVALID;
+import static com.sjsu.infinilinc.infinilinc.NfcResponse.TYPE.OK;
 
 public class NfcResponse {
     enum TYPE {
@@ -16,7 +16,7 @@ public class NfcResponse {
     private byte[] payload;
     private boolean moreFragments;
 
-    public NfcResponse(TYPE t) {
+    NfcResponse(TYPE t) {
         errorCode = 0;
         payload = null;
         moreFragments = false;
@@ -24,7 +24,7 @@ public class NfcResponse {
         type = t;
     }
 
-    public NfcResponse(byte[] bytes) {
+    NfcResponse(byte[] bytes) {
         errorCode = 0;
         payload = null;
 

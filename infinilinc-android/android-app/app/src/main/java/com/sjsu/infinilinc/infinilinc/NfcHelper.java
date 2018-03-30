@@ -1,10 +1,10 @@
-package com.example.conner.projectresearch;
+package com.sjsu.infinilinc.infinilinc;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class NfcHelper {
-    public static List<byte[]> fragment(byte[] bytes, int fragmentSize) {
+class NfcHelper {
+    static List<byte[]> fragment(byte[] bytes, int fragmentSize) {
         List<byte[]> frags = new ArrayList<>();
 
         byte[] f;

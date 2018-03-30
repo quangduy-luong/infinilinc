@@ -1,4 +1,4 @@
-package com.example.conner.projectresearch;
+package com.sjsu.infinilinc.infinilinc;
 
 import java.util.List;
 

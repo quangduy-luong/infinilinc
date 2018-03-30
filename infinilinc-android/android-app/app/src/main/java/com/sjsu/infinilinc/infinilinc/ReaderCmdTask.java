@@ -1,4 +1,4 @@
-package com.example.conner.projectresearch;
+package com.sjsu.infinilinc.infinilinc;
 
 import android.nfc.tech.IsoDep;
 import android.os.AsyncTask;
@@ -12,7 +12,7 @@ public class ReaderCmdTask extends AsyncTask<Void, Void, Boolean> {
     private IsoDep mTag;
     private List<NfcCommand> mCommands;
 
-    public ReaderCmdTask(IsoDep tag, List<NfcCommand> commands,
+    ReaderCmdTask(IsoDep tag, List<NfcCommand> commands,
                          ReaderTaskInterface callbackInterface) {
         mCallbackInterface = callbackInterface;
         mTag = tag;

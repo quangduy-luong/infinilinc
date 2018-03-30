@@ -1,4 +1,4 @@
-package com.example.conner.projectresearch;
+package com.sjsu.infinilinc.infinilinc;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

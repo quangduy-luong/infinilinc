@@ -1,4 +1,4 @@
-package com.example.conner.projectresearch;
+package com.sjsu.infinilinc.infinilinc;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -49,27 +49,67 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
 
     private int fragmentSize = 0;
 
-    /* Implemented by UI class */
+    /* Event handler functions to be implemented by UI class */
+
+    /**
+     * Invoked when a new Infinilinc NFC device is connected
+     */
     abstract void onConnect();
+
+    /**
+     * Invoked when the current Infinilinc NFC device is disconnected
+     */
     abstract void onDisconnect();
+
+    /**
+     * Invoked when a previous call to send() completes
+     *
+     * @param success True if send() was successful, false otherwise
+     */
     abstract void onSendComplete(boolean success);
+
+    /**
+     * Invoked when data is received after receive() is called
+     *
+     * @param success True if data was received successfully, false otherwise
+     * @param str String containing received data
+     */
     abstract void onReceiveComplete(boolean success, String str);
 
+    /**
+     * Trivial function to allow detection of NFC JS interface
+     *
+     * @return Always returns true
+     */
     @JavascriptInterface
     public final boolean exists() {
         return true;
     }
 
+    /**
+     * Enables the NFC interface in the configured operating mode
+     */
     @JavascriptInterface
     public final void enable() {
         enableNfc();
     }
 
+    /**
+     * Disables the NFC interface
+     */
     @JavascriptInterface
     public final void disable() {
         disableNfc();
     }
 
+    /**
+     * Sends a string to the NFC interface
+     *
+     * In reader mode, this will start an exchange with the connected card. In card mode, this will
+     * send the string to the card service to be read by the reader later.
+     *
+     * @param str String to be sent
+     */
     @JavascriptInterface
     public final void send(String str) {
         if(!nfcEnabled) {
@@ -100,6 +140,12 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
         }
     }
 
+    /**
+     * Receives a string from the connected NFC device
+     *
+     * In reader mode, this will start an exchange with the connected card to read data from it. In
+     * card mode, this will place the NFC interface in a pending state until data has been received.
+     */
     @JavascriptInterface
     public final void receive() {
         if(!nfcEnabled) {
@@ -125,22 +171,44 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
         }
     }
 
+    /**
+     * Disconnects from a connected tag when in reader mode. Does nothing in card mode.
+     */
     @JavascriptInterface
     public final void disconnect() {
-        disconnectFromTag();
+        if(nfcMode == NfcMode.READER) {
+            disconnectFromTag();
+        }
     }
 
+    /**
+     * Sets the current operating mode for the NFC interface. In reader mode, the device waits for
+     * a card to connect and can execute command sequences to transceive data. In card mode, the
+     * device waits for commands from a reader and sends responses.
+     *
+     * @param mode 0 for card mode, 1 for reader mode
+     */
     @JavascriptInterface
     public final void setMode(int mode) {
-        /* 0 for card emulation, 1 for reader */
+        /* 0 for card emulation, 1 for reader mode */
         setNfcMode((mode == 0) ? NfcMode.CARD_EM: NfcMode.READER);
     }
 
+    /**
+     * Returns the current NFC interface mode
+     *
+     * @return 0 for card mode, 1 for reader mode
+     */
     @JavascriptInterface
     public final int mode() {
         return (nfcMode == NfcMode.CARD_EM) ? 0 : 1;
     }
 
+    /**
+     * Gives the enabled status of the NFC interface
+     *
+     * @return Returns true if NFC is enabled, false otherwise
+     */
     @JavascriptInterface
     public final boolean enabled() {
         return nfcEnabled;
