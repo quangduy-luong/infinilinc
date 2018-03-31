@@ -85,9 +85,8 @@ public class NfcCardService extends HostApduService {
                     intent = new Intent(ACTION_RECEIVED);
                     intent.putExtra(Intent.EXTRA_TEXT, rxBuffer);
                     l.sendBroadcast(intent);
+                    rxBuffer = "";
                 }
-
-                rxBuffer = "";
 
                 return new NfcResponse(NfcResponse.TYPE.OK).getBytes();
 
