@@ -2,18 +2,48 @@
 <html>
 <head>
 	<meta charset="UTF-8"></meta>
-	<title>infinilinc nfc test</title>
+	<title>Infinilinc API Example</title>
+	<style>
+		body {
+			font-family: sans-serif;
+		}
+
+		p {
+			text-align: justify;
+		}
+
+		#ui input {
+			margin-bottom: 8pt;
+			width: 100%;
+			box-sizing: border-box;
+			font-size: 14pt;
+			padding: 2pt;
+		}
+
+		#ui div input:last-of-type {
+			margin-bottom: 0;
+		}
+	</style>
 </head>
 <body>
-	<input type="button" id="enable"></input>
-	<div id="controls">
-		<input type="button" id="mode" style="display: block;"></input>
-		<input type="text" id="message" placeholder="Message"
-			style="display: block;">
-		</input>
-		<input type="text" id="received-message" placeholder="Received message"
-			style="display: block;">
-		</input>
+	<h1>Infinilinc API Example</h1>
+	<p>This page provides an example of exchanging strings between Infinilinc
+	devices.</p>
+	<p>To start, one device must be talking (reader mode) and the other must be
+	listening (card mode). Type a message on each device and bring them together.
+	The strings will be exchanged and the received string will appear in the
+	bottom text box.</p>
+	<div id="ui">
+		<input type="button" id="enable"></input>
+		<div id="controls">
+			<input type="button" id="mode" style="display: block;"></input>
+			<input type="text" id="message" placeholder="Message"
+				style="display: block;">
+			</input>
+			<input readonly type="text" id="received-message"
+				placeholder="Received message" style="display: block;">
+			</input>
+		</div>
 	</div>
 </body>
 <script>
