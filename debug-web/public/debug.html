@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"></meta>
+	<title>Infinilinc API Example</title>
+	<style>
+		body {
+			font-family: sans-serif;
+		}
+
+		p {
+			text-align: justify;
+		}
+
+		#ui input {
+			margin-bottom: 8pt;
+			width: 100%;
+			box-sizing: border-box;
+			font-size: 14pt;
+			padding: 2pt;
+		}
+
+		#ui div input:last-of-type {
+			margin-bottom: 0;
+		}
+	</style>
+</head>
+<body>
+	<h1>Infinilinc API Example</h1>
+	<p>This page provides an example of exchanging strings between Infinilinc
+	devices.</p>
+	<p>To start, one device must be talking (reader mode) and the other must be
+	listening (card mode). Type a message on each device and bring them together.
+	The strings will be exchanged and the received string will appear in the
+	bottom text box.</p>
+	<div id="ui">
+		<input type="button" id="enable"></input>
+		<div id="controls">
+			<input type="button" id="mode" style="display: block;"></input>
+			<input type="text" id="message" placeholder="Message"
+				style="display: block;">
+			</input>
+			<input readonly type="text" id="received-message"
+				placeholder="Received message" style="display: block;">
+			</input>
+		</div>
+	</div>
+</body>
+<script>
+	var enable_button;
+	var controls_div;
+	var mode_button;
+	var message_input;
+	var received_input;
+
+	function toggle_nfc() {
+		if(nfc.enabled()) {
+			nfc.disable();
+			controls_div.style.display = get_control_div_display_value(false);
+			enable_button.value = get_enable_button_value(false);
+		} else {
+			nfc.enable();
+			controls_div.style.display = get_control_div_display_value(true);
+			enable_button.value = get_enable_button_value(true);
+		}
+	}
+
+	function get_enable_button_value(nfc_en) {
+		return (nfc_en) ? 'Disable NFC' : 'Enable NFC';
+	}
+
+	function get_mode_button_value(nfc_mode) {
+		return (nfc_mode == 1) ? 'Start listening' : 'Start talking';	
+	}
+
+	function get_control_div_display_value(display) {
+		return (display) ? 'block' : 'none';
+	}
+
+	function toggle_nfc_mode() {
+		if(nfc.mode() == 1) {
+			nfc.setMode(0);
+			mode_button.value = get_mode_button_value(0);
+		} else {
+			nfc.setMode(1);
+			mode_button.value = get_mode_button_value(1);
+		}
+	}
+
+	function init() {
+		/* Make sure that the nfc object exists (i.e.: this is running in the
+     * Android app) */
+		try {
+			nfc.exists();
+		} catch(e) {
+			alert('NFC object does not exist');
+			return;
+		}
+	
+		/* Get app elements */
+		enable_button = document.getElementById('enable');
+		controls_div = document.getElementById('controls');
+		mode_button = document.getElementById('mode');
+		message_input = document.getElementById('message');
+		received_input = document.getElementById('received-message');
+
+		/* Set click handlers */
+		enable_button.onclick = toggle_nfc;
+		mode_button.onclick = toggle_nfc_mode;
+
+		/* Grab NFC status */
+		let nfc_en = nfc.enabled();
+		let nfc_mode = nfc.mode();
+
+		/* Set button labels / visibility */
+		enable_button.value = get_enable_button_value(false);		
+		mode_button.value = get_mode_button_value(0);
+		controls_div.style.display = get_control_div_display_value(false);
+
+		nfc.onConnect = function() {
+			nfc.send(message_input.value);
+		}
+
+		nfc.onDisconnect = function() {
+		}
+
+		nfc.onSendComplete = function() {
+			nfc.receive();
+		}
+
+		nfc.onReceive = function(str) {
+			received_input.value = str;
+		}
+	}
+
+	init();
+</script>
+</html>
