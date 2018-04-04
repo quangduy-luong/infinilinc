@@ -120,7 +120,6 @@
       },
       submit () {
         if (this.$refs.form.validate()) {
-          console.log({ email: this.email })
           this.$store.dispatch('registerUser', { email: this.email, password: this.password })
         }
       },

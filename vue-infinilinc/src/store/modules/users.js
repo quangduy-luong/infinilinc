@@ -21,6 +21,7 @@ const getters = {
 const mutations = {
   setUser (state, payload) {
     state.user = payload
+    this.dispatch('loadLinks')
   },
   setLoading (state, payload) {
     state.loading = payload
@@ -42,9 +43,18 @@ const actions = {
         user => {
           const newUser = {
             id: user.uid,
-            connections: []
+            email: user.email
           }
-          commit('setUser', newUser)
+          firebase.database().ref('users/' + user.uid).set(newUser)
+            .then(
+              data => {
+                commit('setUser', newUser)
+              })
+            .catch(
+              error => {
+                console.log(error)
+                commit('setError', error)
+              })
           commit('setLoading', false)
         }
       )
@@ -64,13 +74,29 @@ const actions = {
       .then(
         result => {
           console.log(result)
-          const newUser = {
-            id: result.user.uid,
-            connections: []
-          }
-          commit('setUser', newUser)
+          firebase.database().ref('users/').once('value', function (snapshot) {
+            if (snapshot.hasChild(result.user.uid)) {
+              var currUser = snapshot.child(result.user.uid).val()
+              currUser.id = result.user.uid
+              commit('setUser', currUser)
+            } else {
+              const newUser = {
+                id: result.user.uid,
+                email: result.user.email
+              }
+              firebase.database().ref('users/' + result.user.uid).set(newUser)
+                .then(
+                  data => {
+                    commit('setUser', newUser)
+                  })
+                .catch(
+                  error => {
+                    console.log(error)
+                    commit('setError', error)
+                  })
+            }
+          })
           commit('setLoading', false)
-          console.log(newUser)
         }
       )
       .catch(
@@ -88,14 +114,29 @@ const actions = {
     firebase.auth().signInWithPopup(provider)
       .then(
         result => {
-          console.log(result)
-          const newUser = {
-            id: result.user.uid,
-            connections: []
-          }
-          commit('setUser', newUser)
+          firebase.database().ref('users/').once('value', function (snapshot) {
+            if (snapshot.hasChild(result.user.uid)) {
+              var currUser = snapshot.child(result.user.uid).val()
+              currUser.id = result.user.uid
+              commit('setUser', currUser)
+            } else {
+              const newUser = {
+                id: result.user.uid,
+                email: result.user.email
+              }
+              firebase.database().ref('users/' + result.user.uid).set(newUser)
+                .then(
+                  data => {
+                    commit('setUser', newUser)
+                  })
+                .catch(
+                  error => {
+                    console.log(error)
+                    commit('setError', error)
+                  })
+            }
+          })
           commit('setLoading', false)
-          console.log(newUser)
         }
       )
       .catch(
@@ -113,14 +154,29 @@ const actions = {
     firebase.auth().signInWithPopup(provider)
       .then(
         result => {
-          console.log(result)
-          const newUser = {
-            id: result.user.uid,
-            connections: []
-          }
-          commit('setUser', newUser)
+          firebase.database().ref('users/').once('value', function (snapshot) {
+            if (snapshot.hasChild(result.user.uid)) {
+              var currUser = snapshot.child(result.user.uid).val()
+              currUser.id = result.user.uid
+              commit('setUser', currUser)
+            } else {
+              const newUser = {
+                id: result.user.uid,
+                email: result.user.email
+              }
+              firebase.database().ref('users/' + result.user.uid).set(newUser)
+                .then(
+                  data => {
+                    commit('setUser', newUser)
+                  })
+                .catch(
+                  error => {
+                    console.log(error)
+                    commit('setError', error)
+                  })
+            }
+          })
           commit('setLoading', false)
-          console.log(newUser)
         }
       )
       .catch(
@@ -137,20 +193,11 @@ const actions = {
     firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
       .then(
         user => {
-          console.log(user)
-          const newUser = {
-            id: user.uid,
-            connections: []
-          }
-          // const firebaseUser = {
-          //   first: payload.first,
-          //   last: payload.last,
-          //   paymentInfo: null,
-          //   bookings: []
-          // }
-          // firebase.database().ref('users/' + user.uid).set(firebaseUser)
-          commit('setUser', newUser)
-          commit('setLoading', false)
+          firebase.database().ref('users/').once('value', function (snapshot) {
+            var currUser = snapshot.child(user.uid).val()
+            commit('setUser', currUser)
+            commit('setLoading', false)
+          })
         }
       )
       .catch(

@@ -1,21 +1,31 @@
 const state = {
   menuItems: [
     {
-      icon: 'fa-user-plus',
+      icon: 'person_add',
       title: 'Sign Up',
       path: 'signup'
     },
     {
-      icon: 'fa-sign-in-alt',
+      icon: 'lock',
       title: 'Sign In',
       path: 'signin'
     }
   ],
   menuItemsUser: [
     {
-      icon: 'fa-user',
+      icon: 'person',
       title: 'Profile',
       path: 'profile'
+    },
+    {
+      icon: 'chat',
+      title: 'Chats',
+      path: 'chats'
+    },
+    {
+      icon: 'link',
+      title: 'Links',
+      path: 'links'
     }
   ],
   showSidebar: false

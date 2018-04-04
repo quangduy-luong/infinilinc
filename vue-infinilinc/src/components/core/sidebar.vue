@@ -6,7 +6,6 @@
     v-model="visible"
     fixed
     app
-    color="deep orange darken-1"
   >
     <v-list>
       <v-list-tile
@@ -39,7 +38,10 @@
         }
       },
       items () {
-        return this.$store.getters.getMenuItems
+        if (this.$store.getters.user === null || this.$store.getters.user === undefined) {
+          return this.$store.getters.getMenuItems
+        }
+        return this.$store.getters.getMenuItemsUser
       }
     }
   }
