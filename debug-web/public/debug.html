@@ -121,15 +121,19 @@
 			nfc.send(message_input.value);
 		}
 
-		nfc.onDisconnect = function() {
-		}
-
 		nfc.onSendComplete = function() {
 			nfc.receive();
 		}
 
 		nfc.onReceive = function(str) {
 			received_input.value = str;
+		}
+		
+		nfc.onReset = function() {
+			if(!nfc.enabled()) {
+				controls_div.style.display = get_control_div_display_value(false);
+				enable_button.value = get_enable_button_value(false);
+			}
 		}
 	}
 

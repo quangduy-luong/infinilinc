@@ -103,9 +103,11 @@ events. Code would look something like the following:
 
 Invoked when the device is enabled and another Infinilinc device is connected.
 
-### `void onDisconnect()`
+### `void onReset()`
 
-Invoked when the connection with the previous Infinilinc device is lost.
+Invoked when the Infinilinc NFC driver is reset. Resets can happen when the
+app is paused by the user locking the phone or pressing the home button. On
+reset, the NFC device is disabled; mode is left unchanged.
 
 ### `void onSendComplete()`
 

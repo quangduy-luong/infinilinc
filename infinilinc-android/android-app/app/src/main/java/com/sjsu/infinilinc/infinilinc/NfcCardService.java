@@ -111,12 +111,6 @@ public class NfcCardService extends HostApduService {
 
     @Override
     public void onDeactivated(int i) {
-        Context c = getApplicationContext();
-        LocalBroadcastManager l = LocalBroadcastManager.getInstance(c);
-
-        Intent intent = new Intent(ACTION_DISCONNECT);
-
-        l.sendBroadcast(intent);
     }
 
     private byte[] getNextTxFragment() {

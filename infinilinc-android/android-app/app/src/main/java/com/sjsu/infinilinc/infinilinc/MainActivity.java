@@ -32,39 +32,29 @@ public class MainActivity extends NfcActivity {
     private View offlineLayoutView;
 
     @Override
-    void onConnect() {
+    void onNfcConnect() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mainWebView.evaluateJavascript("nfc.onConnect();", null);
+                mainWebView.evaluateJavascript(makeJsCallbackString("nfc.onConnect", null), null);
             }
         });
     }
 
     @Override
-    void onDisconnect() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mainWebView.evaluateJavascript("nfc.onDisconnect();", null);
-            }
-        });
-    }
-
-    @Override
-    void onSendComplete(boolean success) {
+    void onNfcSendComplete(boolean success) {
         if(success) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mainWebView.evaluateJavascript("nfc.onSendComplete();", null);
+                    mainWebView.evaluateJavascript(makeJsCallbackString("nfc.onSendComplete", null), null);
                 }
             });
         }
     }
 
     @Override
-    void onReceiveComplete(boolean success, String str) {
+    void onNfcReceiveComplete(boolean success, String str) {
         if(success) {
             /* Escape any quotes in the string to prevent execution of string */
             String escaped_str = str;
@@ -74,7 +64,7 @@ public class MainActivity extends NfcActivity {
             runOnUiThread(new StrRunnable(escaped_str) {
                 @Override
                 public void run() {
-                    mainWebView.evaluateJavascript("nfc.onReceive(\'" + mStr + "\');", null);
+                    mainWebView.evaluateJavascript(makeJsCallbackString("nfc.onReceive", mStr), null);
                 }
             });
         }
@@ -88,8 +78,18 @@ public class MainActivity extends NfcActivity {
             setContentView(offlineLayoutView);
             mainWebView.loadUrl("about:blank");
 
-            disable(); /* Disable NFC */
+            disableNfc();
         }
+    }
+
+    @Override
+    void onNfcReset() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mainWebView.evaluateJavascript(makeJsCallbackString("nfc.onReset", null), null);
+            }
+        });
     }
 
     boolean isNetConnected(Context context) {
@@ -187,8 +187,16 @@ public class MainActivity extends NfcActivity {
         super.onConfigurationChanged(newConfig);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    private String makeJsCallbackString(String methodName, String parameter) {
+        String str = "if((typeof " + methodName + " !== \'undefined\') && (" + methodName
+                + " !== null)) {" + methodName + "(";
+
+        if(parameter != null) {
+            str += "\'" + parameter + "\'";
+        }
+
+        str += ");}";
+
+        return str;
     }
 }

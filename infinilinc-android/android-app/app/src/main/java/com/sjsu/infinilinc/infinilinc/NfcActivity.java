@@ -49,24 +49,21 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
 
     private int fragmentSize = 0;
 
+    private boolean nfcReset = false;
+
     /* Event handler functions to be implemented by UI class */
 
     /**
      * Invoked when a new Infinilinc NFC device is connected
      */
-    abstract void onConnect();
-
-    /**
-     * Invoked when the current Infinilinc NFC device is disconnected
-     */
-    abstract void onDisconnect();
+    abstract void onNfcConnect();
 
     /**
      * Invoked when a previous call to send() completes
      *
      * @param success True if send() was successful, false otherwise
      */
-    abstract void onSendComplete(boolean success);
+    abstract void onNfcSendComplete(boolean success);
 
     /**
      * Invoked when data is received after receive() is called
@@ -74,7 +71,14 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
      * @param success True if data was received successfully, false otherwise
      * @param str String containing received data
      */
-    abstract void onReceiveComplete(boolean success, String str);
+    abstract void onNfcReceiveComplete(boolean success, String str);
+
+    /**
+     * Invoked when NFC driver is reset (e.g.: after an Activity pause-resume sequence)
+     */
+    abstract void onNfcReset();
+
+    /* JavaScript API methods */
 
     /**
      * Trivial function to allow detection of NFC JS interface
@@ -136,7 +140,7 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
 
             l.sendBroadcast(intent);
 
-            onSendComplete(true);
+            onNfcSendComplete(true);
         }
     }
 
@@ -164,7 +168,7 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
         } else {
             if(newReceivedData) {
                 newReceivedData = false;
-                onReceiveComplete(true, receivedString);
+                onNfcReceiveComplete(true, receivedString);
             } else {
                 waitingForReceivedData = true;
             }
@@ -238,11 +242,10 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
                 if(action != null) {
                     switch(action) {
                         case NfcCardService.ACTION_CONNECT:
-                            onConnect();
+                            onNfcConnect();
                             break;
 
                         case NfcCardService.ACTION_DISCONNECT:
-                            onDisconnect();
                             break;
 
                         case NfcCardService.ACTION_RECEIVED:
@@ -251,7 +254,7 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
                             if(waitingForReceivedData) {
                                 waitingForReceivedData = false;
                                 newReceivedData = false;
-                                onReceiveComplete(true, receivedString);
+                                onNfcReceiveComplete(true, receivedString);
                             } else {
                                 newReceivedData = true;
                             }
@@ -294,6 +297,7 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
                         tagInterface.connect();
                     } catch(IOException e) {
                         Log.d(getClass().getName(), "IsoDep connection to tag failed");
+                        tagInterface = null;
                         return;
                     }
 
@@ -301,6 +305,7 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
                     NfcCommand selectCmd = new NfcCommand(NfcCommand.TYPE.SELECT_AID);
                     if(!selectCmd.send(tagInterface)) {
                         Log.d(getClass().getName(), "IsoDep AID selection failed");
+                        tagInterface = null;
                         return;
                     }
 
@@ -311,6 +316,7 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
 
                     if(!setDataSize.send(tagInterface)) {
                         Log.d(getClass().getName(), "NFC channel fragmentation size select failed");
+                        tagInterface = null;
                         return;
                     }
 
@@ -318,7 +324,7 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            onConnect();
+                            onNfcConnect();
                         }
                     });
                 }
@@ -349,6 +355,18 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
         super.onPause();
 
         disableNfc();
+
+        nfcReset = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(nfcReset) {
+            nfcReset = false;
+            onNfcReset();
+        }
     }
 
     protected void setNfcMode(NfcMode m) {
@@ -398,11 +416,11 @@ public abstract class NfcActivity extends Activity implements ReaderTaskInterfac
     public void onComplete(boolean status, List<NfcCommand> commands) {
         switch(commands.get(0).getType()) {
             case SEND:
-                onSendComplete(status);
+                onNfcSendComplete(status);
                 break;
 
             case READ:
-                onReceiveComplete(status, commands.get(0).getResponsePayloadString());
+                onNfcReceiveComplete(status, commands.get(0).getResponsePayloadString());
                 break;
         }
     }
