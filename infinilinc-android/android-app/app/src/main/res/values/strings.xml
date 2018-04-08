@@ -12,4 +12,6 @@
     <string name="reader_disconnected">Reader was disconnected from card app</string>
     <string name="card_connected">Card app is connected to reader</string>
     <string name="card_disconnected">Card app was disconnected from reader</string>
+    <string name="offline_header">You are offline.</string>
+    <string name="offline_message">Connect to the Internet to use Infinilinc.</string>
 </resources>
