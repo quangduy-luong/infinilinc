@@ -42,7 +42,13 @@ const actions = {
         user => {
           const newUser = {
             id: user.uid,
+<<<<<<< Updated upstream
             connections: []
+=======
+            email: user.email,
+            userName: 'Username',
+            defaultName: 0
+>>>>>>> Stashed changes
           }
           commit('setUser', newUser)
           commit('setLoading', false)
@@ -53,6 +59,33 @@ const actions = {
           commit('setLoading', false)
           commit('setError', error)
           console.log(error)
+        }
+      )
+  },
+  updateUser ({commit}, payload) {
+    commit('setLoading', true)
+    commit('clearError')
+    firebase.auth().currentUser
+      .then(
+        user => {
+          console.log(user)
+          const updateUser = {
+            id: user.uid,
+            email: payload.email,
+            userName: payload.username,
+            defaultName: 0
+          }
+          firebase.database().ref('users/' + user.uid).set(updateUser)
+            .then(
+              data => {
+                commit('setUser', updateUser)
+              })
+            .catch(
+              error => {
+                console.log(error)
+                commit('setError', error)
+              })
+          commit('setLoading', false)
         }
       )
   },

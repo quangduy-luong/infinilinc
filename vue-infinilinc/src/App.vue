@@ -42,7 +42,7 @@
 export default {
   data () {
     return {
-      title: 'iNFinilinC'
+      title: 'infinilinc'
     }
   },
   methods: {
