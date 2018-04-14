@@ -42,13 +42,9 @@ const actions = {
         user => {
           const newUser = {
             id: user.uid,
-<<<<<<< Updated upstream
-            connections: []
-=======
             email: user.email,
             userName: 'Username',
             defaultName: 0
->>>>>>> Stashed changes
           }
           commit('setUser', newUser)
           commit('setLoading', false)
