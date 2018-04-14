@@ -78,6 +78,8 @@ const actions = {
               })
             .catch(
               error => {
+        commit('setLoading', false)
+        commit('setError', error)
                 console.log(error)
                 commit('setError', error)
               })
