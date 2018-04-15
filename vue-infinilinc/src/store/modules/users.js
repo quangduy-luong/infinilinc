@@ -70,7 +70,8 @@ const actions = {
     commit('setLoading', true)
     commit('clearError')
     var user = firebase.auth().currentUser
-
+    debugger
+    console.log('payload' + payload.email)
     user.updateEmail(payload.email)
       .then(
         () => {

@@ -26,7 +26,7 @@
                             <v-text-field
                             name="Username"
                             ref="username"
-                            :value="this.user.username"
+                            :value="this.user.userName"
                             single-line
                             ></v-text-field>
                         </v-flex>
@@ -124,7 +124,7 @@
     methods: {
       save () {
         if (this.$refs.form.validate()) {
-          this.$store.dispatch('updateUser', { email: this.$refs.email, username: this.$refs.username })
+          this.$store.dispatch('updateUser', { email: 'jnarbaitz@gmail.com', username: 'fuccboi' })
         }
       },
       clear () {
