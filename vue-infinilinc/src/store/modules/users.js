@@ -45,26 +45,26 @@ const actions = {
             id: user.uid,
             email: user.email
           }
-        firebase.database().ref('users/' + user.uid).set(newUser)
-          .then(
-            data => {
-              commit('setUser', newUser)
-            })
-          .catch(
-            error => {
-              console.log(error)
-              commit('setError', error)
-            })
-        commit('setLoading', false)
-      }
-    )
-    .catch(
-      error => {
-        commit('setLoading', false)
-        commit('setError', error)
-        console.log(error)
-      }
-    )
+          firebase.database().ref('users/' + user.uid).set(newUser)
+            .then(
+              data => {
+                commit('setUser', newUser)
+              })
+            .catch(
+              error => {
+                console.log(error)
+                commit('setError', error)
+              })
+          commit('setLoading', false)
+        }
+      )
+      .catch(
+        error => {
+          commit('setLoading', false)
+          commit('setError', error)
+          console.log(error)
+        }
+      )
   },
   updateUser ({commit}, payload) {
     commit('setLoading', true)
@@ -73,33 +73,33 @@ const actions = {
 
     user.updateEmail(payload.email)
       .then(
-        user => {
+        () => {
           const updateUser = {
             id: user.uid,
             email: payload.email,
             userName: payload.username,
             defaultName: 0
           }
-        firebase.database().ref('users/' + user.uid).set(updateUser)
-          .then(
-            data => {
-              commit('setUser', updateUser)
-            })
-          .catch(
-            error => {
-              console.log(error)
-              commit('setError', error)
-            })
-        commit('setLoading', false)
-      }
-    )
-    .catch(
-      error => {
-        commit('setLoading', false)
-        commit('setError', error)
-        console.log(error)
-      }
-    )
+          firebase.database().ref('users/' + user.uid).set(updateUser)
+            .then(
+              data => {
+                commit('setUser', updateUser)
+              })
+            .catch(
+              error => {
+                console.log(error)
+                commit('setError', error)
+              })
+          commit('setLoading', false)
+        }
+      )
+      .catch(
+        error => {
+          commit('setLoading', false)
+          commit('setError', error)
+          console.log(error)
+        }
+      )
   },
   loginWithGoogle ({commit}) {
     commit('setLoading', true)
