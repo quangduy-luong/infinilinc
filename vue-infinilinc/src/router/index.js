@@ -1,11 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import homepage from '@/components/homepage'
-import profile from '@/components/users/profile'
+import profile from '@/components/users/profile/profile'
+import changeEmail from '@/components/users/profile/changeEmail'
+import changeUsername from '@/components/users/profile/changeUsername'
+import changePassword from '@/components/users/profile/changePassword'
 import signin from '@/components/users/signin'
 import signup from '@/components/users/signup'
 import chat from '@/components/conversations/chat'
-import chats from '@/components/conversations/chats'
 
 Vue.use(Router)
 
@@ -32,14 +34,24 @@ export default new Router({
       component: profile
     },
     {
+      path: '/changeEmail',
+      name: 'changeEmail',
+      component: changeEmail
+    },
+    {
+      path: '/changeUsername',
+      name: 'changeUsername',
+      component: changeUsername
+    },
+    {
+      path: '/changePassword',
+      name: 'changePassword',
+      component: changePassword
+    },
+    {
       path: '/chat',
       name: 'chat',
       component: chat
-    },
-    {
-      path: '/chats',
-      name: 'chats',
-      component: chats
     }
   ],
   mode: 'history'

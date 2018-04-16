@@ -24,7 +24,7 @@
         <v-container v-else fluid>
           <v-layout row wrap>
             <v-flex xs12 v-for="(link, i) in links" :key="i">
-              <infinilinc :link="link"><</infinilinc>
+              <infinilinc :link="link"></infinilinc>
             </v-flex>
           </v-layout>
         </v-container>

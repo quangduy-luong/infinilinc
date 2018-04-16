@@ -3,7 +3,24 @@ import * as firebase from 'firebase'
 const state = {
   user: null,
   loading: false,
-  error: null
+  error: null,
+  accountList: [
+    {
+      icon: 'perm_identity',
+      title: 'Change Username',
+      path: 'changeUsername'
+    },
+    {
+      icon: 'mail',
+      title: 'Change Email',
+      path: 'changeEmail'
+    },
+    {
+      icon: '',
+      title: 'Change Password',
+      path: 'changePassword'
+    }
+  ]
 }
 
 const getters = {
@@ -15,6 +32,9 @@ const getters = {
   },
   error (state) {
     return state.error
+  },
+  getAccountList (state) {
+    return state.accountList
   }
 }
 
@@ -71,7 +91,7 @@ const actions = {
     commit('clearError')
     var user = firebase.auth().currentUser
     debugger
-    console.log('payload' + payload.email)
+    console.log('payload' + payload.name)
     user.updateEmail(payload.email)
       .then(
         () => {
