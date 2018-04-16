@@ -5,6 +5,10 @@ import java.util.List;
 
 class NfcHelper {
     static List<byte[]> fragment(byte[] bytes, int fragmentSize) {
+        if((fragmentSize < 0) || ((bytes.length > 0) && (fragmentSize == 0))) {
+            throw new RuntimeException();
+        }
+
         List<byte[]> frags = new ArrayList<>();
 
         byte[] f;
@@ -19,7 +23,7 @@ class NfcHelper {
             i += fragmentSize;
         }
 
-        f = new byte[fragmentSize];
+        f = new byte[bytes.length - i];
         System.arraycopy(bytes, i, f, 0, bytes.length - i);
 
         frags.add(f);
