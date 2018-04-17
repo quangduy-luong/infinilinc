@@ -16,26 +16,168 @@
                       </v-card-title>
                   </v-layout>
               </v-card-media>
-              <v-list>
-                <v-list-tile
-                v-for="(item, i) in items"
-                :key="i"
-                :to="item.path">
+              <v-divider></v-divider>
+              <v-list two-line>
+                <v-list-tile @click.stop="dialogName = true">
                   <v-list-tile-action>
-                    <v-icon color="indigo">{{ item.icon }}</v-icon>
+                    <v-icon color="indigo">perm_identity</v-icon>
                   </v-list-tile-action>
                   <v-list-tile-content>
-                    <v-list-tile-title class="black--text">{{ item.title }}</v-list-tile-title>
+                    <v-list-tile-title class="black--text">{{ this.user.userName }}</v-list-tile-title>
                     <v-list-tile-sub-title class="black--text"></v-list-tile-sub-title>
                   </v-list-tile-content>
                   <v-list-tile-action>
-                    <v-icon>chevron_right</v-icon>
+                    <v-icon>edit</v-icon>
+                  </v-list-tile-action>
+                </v-list-tile>
+                <v-divider></v-divider>
+                <v-list-tile @click.stop="dialogEmail = true">
+                  <v-list-tile-action>
+                    <v-icon color="indigo">mail_outline</v-icon>
+                  </v-list-tile-action>
+                  <v-list-tile-content>
+                    <v-list-tile-title class="black--text">{{ this.user.email }}</v-list-tile-title>
+                    <v-list-tile-sub-title class="black--text"></v-list-tile-sub-title>
+                  </v-list-tile-content>
+                  <v-list-tile-action>
+                    <v-icon>edit</v-icon>
+                  </v-list-tile-action>
+                </v-list-tile>
+                <v-divider></v-divider>
+                <v-list-tile @click.stop="dialogPassword = true">
+                  <v-list-tile-action>
+                    <v-icon color="indigo">lock_outline</v-icon>
+                  </v-list-tile-action>
+                  <v-list-tile-content>
+                    <v-list-tile-title class="black--text">Change Password</v-list-tile-title>
+                    <v-list-tile-sub-title class="black--text"></v-list-tile-sub-title>
+                  </v-list-tile-content>
+                  <v-list-tile-action>
+                    <v-icon>edit</v-icon>
                   </v-list-tile-action>
                 </v-list-tile>
               </v-list>
             </v-card>
+
+            <v-dialog v-model="dialogUsername" fullscreen :overlay="false">
+              <v-card>
+                <v-toolbar dark color="primary">
+                  <v-btn icon @click.native="dialogUsername = false" dark>
+                    <v-icon>close</v-icon>
+                  </v-btn>
+                  <v-toolbar-title>Settings</v-toolbar-title>
+                  <v-spacer></v-spacer>
+                  <v-toolbar-items>
+                    <v-btn dark flat @click.native="dialogUsername = false">Save</v-btn>
+                  </v-toolbar-items>
+                </v-toolbar>
+                <v-container>
+                  <v-layout>
+                    <v-flex xs12 sm6 offset-sm3>
+                      <v-card>
+                        <v-card-text>
+                          <v-form v-model="valid" ref="form" lazy-validation>
+                            <v-text-field
+                            label="New username"
+                            v-model="username"
+                            :rules="usernameRules"
+                            :counter="18"
+                            required
+                            ></v-text-field>
+                          </v-form>
+                        </v-card-text>
+                      </v-card>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card>
+            </v-dialog>
+
+            <v-dialog v-model="dialogEmail" fullscreen :overlay="false">
+              <v-card>
+                <v-toolbar dark color="primary">
+                  <v-btn icon @click.native="dialogEmail = false" dark>
+                    <v-icon>close</v-icon>
+                  </v-btn>
+                  <v-toolbar-title>Settings</v-toolbar-title>
+                  <v-spacer></v-spacer>
+                  <v-toolbar-items>
+                    <v-btn dark flat @click.native="dialogEmail = false">Save</v-btn>
+                  </v-toolbar-items>
+                </v-toolbar>
+                <v-container>
+                  <v-layout>
+                    <v-flex xs12 sm6 offset-sm3>
+                      <v-card>
+                        <v-card-text>
+                          <v-form v-model="valid" ref="form" lazy-validation>
+                            <v-text-field
+                            label="New email"
+                            v-model="email0"
+                            :rules="emailRules"
+                            required
+                            ></v-text-field>
+                            <v-text-field
+                            label="Confirm email"
+                            v-model="email1"
+                            :rules="emailRules.concat([compareEmails])"
+                            required
+                            ></v-text-field>
+                          </v-form>
+                        </v-card-text>
+                      </v-card>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card>
+            </v-dialog>
+
+            <v-dialog v-model="dialogPassword" fullscreen :overlay="false">
+              <v-card>
+                <v-toolbar dark color="primary">
+                  <v-btn icon @click.native="dialogPassword = false" dark>
+                    <v-icon>close</v-icon>
+                  </v-btn>
+                  <v-toolbar-title>Settings</v-toolbar-title>
+                  <v-spacer></v-spacer>
+                  <v-toolbar-items>
+                    <v-btn dark flat @click.native="dialogPassword = false">Save</v-btn>
+                  </v-toolbar-items>
+                </v-toolbar>
+                <v-container>
+                  <v-layout>
+                    <v-flex xs12 sm6 offset-sm3>
+                      <v-card>
+                        <v-card-text>
+                          <v-form v-model="valid" ref="form" lazy-validation>
+                            <v-text-field
+                            label="New password"
+                            v-model="password"
+                            :append-icon="passwordVisible ? 'visibility' : 'visibility_off'"
+                            :append-icon-cb="() => (passwordVisible = !passwordVisible)"
+                            :type="passwordVisible ? 'password' : 'text'"
+                            :rules="passwordRules"
+                            required
+                            ></v-text-field>
+                            <v-text-field
+                            label="Confirm password"
+                            v-model="password2"
+                            :append-icon="password2Visible ? 'visibility' : 'visibility_off'"
+                            :append-icon-cb="() => (password2Visible = !password2Visible)"
+                            :type="password2Visible ? 'password' : 'text'"
+                            :rules="passwordRules.concat([comparePasswords])"
+                            required
+                            ></v-text-field>
+                          </v-form>
+                        </v-card-text>
+                      </v-card>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card>
+            </v-dialog>
           </v-flex>
-        </v-layout>-
+        </v-layout>
       </v-container>
     </section>
   </v-container>
@@ -44,12 +186,20 @@
 <script>
   export default {
     data: () => ({
+      dialogUsername: false,
+      dialogEmail: false,
+      dialogPassword: false,
       valid: true,
+      username: '',
+      email: '',
+      email2: '',
       password: '',
       password2: '',
       passwordVisible: true,
       password2Visible: true,
-      email: '',
+      usernameRules: [
+        (v) => !!v || 'Cannot be empty!'
+      ],
       emailRules: [
         (v) => !!v || 'Cannot be empty!',
         (v) => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'Not a valid email address!'
@@ -60,6 +210,9 @@
       ]
     }),
     computed: {
+      compareEmails () {
+        return this.email !== this.email ? 'Emails do not match!' : true
+      },
       comparePasswords () {
         return this.password !== this.password2 ? 'Passwords do not match!' : true
       },
@@ -79,7 +232,8 @@
     methods: {
       save () {
         if (this.$refs.form.validate()) {
-          this.$store.dispatch('updateUser', { email: 'jnarbaitz@gmail.com', username: 'fuccboi' })
+          this.dialogUsername = false
+          this.$store.dispatch('updateUsername', { email: 'jnarbaitz@gmail.com', username: 'fuccboi' })
         }
       },
       clear () {

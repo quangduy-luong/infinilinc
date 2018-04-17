@@ -23,6 +23,7 @@
                     <v-btn
                     block
                     color="secondary"
+                    :to="profile"
                     @click="submit"
                     :disabled="!valid"
                     >
@@ -76,7 +77,7 @@
     methods: {
       submit () {
         if (this.$refs.form.validate()) {
-          this.$store.dispatch('updateUser', { username: this.name})
+          this.$store.dispatch('updateUser', { username: this.name })
         }
       },
       clear () {
