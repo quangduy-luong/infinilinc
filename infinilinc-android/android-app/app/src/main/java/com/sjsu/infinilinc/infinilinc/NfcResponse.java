@@ -13,12 +13,11 @@ public class NfcResponse {
 
     private TYPE type;
     private byte errorCode;
-    private byte[] payload;
+    private byte[] payload = new byte[] {};
     private boolean moreFragments;
 
     NfcResponse(TYPE t) {
         errorCode = 0;
-        payload = null;
         moreFragments = false;
 
         type = t;
@@ -26,7 +25,6 @@ public class NfcResponse {
 
     NfcResponse(byte[] bytes) {
         errorCode = 0;
-        payload = null;
 
         type = parse(bytes);
     }
