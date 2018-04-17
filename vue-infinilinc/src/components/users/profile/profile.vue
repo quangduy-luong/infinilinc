@@ -18,42 +18,42 @@
               </v-card-media>
               <v-divider></v-divider>
               <v-list two-line>
-                <v-list-tile @click.stop="dialogName = true">
+                <v-list-tile @click.stop="dialogUsername = true">
                   <v-list-tile-action>
-                    <v-icon color="indigo">perm_identity</v-icon>
+                    <v-icon color="indigo" class="pl-2">perm_identity</v-icon>
                   </v-list-tile-action>
                   <v-list-tile-content>
-                    <v-list-tile-title class="black--text">{{ this.user.userName }}</v-list-tile-title>
-                    <v-list-tile-sub-title class="black--text"></v-list-tile-sub-title>
+                    <v-list-tile-title class="pl-4">{{ this.user.userName }}</v-list-tile-title>
+                    <v-list-tile-sub-title></v-list-tile-sub-title>
                   </v-list-tile-content>
                   <v-list-tile-action>
-                    <v-icon>edit</v-icon>
+                    <v-icon class="pr-2">edit</v-icon>
                   </v-list-tile-action>
                 </v-list-tile>
                 <v-divider></v-divider>
                 <v-list-tile @click.stop="dialogEmail = true">
                   <v-list-tile-action>
-                    <v-icon color="indigo">mail_outline</v-icon>
+                    <v-icon color="indigo" class="pl-2">mail_outline</v-icon>
                   </v-list-tile-action>
                   <v-list-tile-content>
-                    <v-list-tile-title class="black--text">{{ this.user.email }}</v-list-tile-title>
-                    <v-list-tile-sub-title class="black--text"></v-list-tile-sub-title>
+                    <v-list-tile-title class="pl-4">{{ this.user.email }}</v-list-tile-title>
+                    <v-list-tile-sub-title></v-list-tile-sub-title>
                   </v-list-tile-content>
                   <v-list-tile-action>
-                    <v-icon>edit</v-icon>
+                    <v-icon class="pr-2">edit</v-icon>
                   </v-list-tile-action>
                 </v-list-tile>
                 <v-divider></v-divider>
                 <v-list-tile @click.stop="dialogPassword = true">
                   <v-list-tile-action>
-                    <v-icon color="indigo">lock_outline</v-icon>
+                    <v-icon color="indigo" class="pl-2">lock_outline</v-icon>
                   </v-list-tile-action>
                   <v-list-tile-content>
-                    <v-list-tile-title class="black--text">Change Password</v-list-tile-title>
-                    <v-list-tile-sub-title class="black--text"></v-list-tile-sub-title>
+                    <v-list-tile-title class="pl-4">Password</v-list-tile-title>
+                    <v-list-tile-sub-title></v-list-tile-sub-title>
                   </v-list-tile-content>
                   <v-list-tile-action>
-                    <v-icon>edit</v-icon>
+                    <v-icon class="pr-2">edit</v-icon>
                   </v-list-tile-action>
                 </v-list-tile>
               </v-list>
@@ -63,12 +63,12 @@
               <v-card>
                 <v-toolbar dark color="primary">
                   <v-btn icon @click.native="dialogUsername = false" dark>
-                    <v-icon>close</v-icon>
+                    <v-icon>chevron_left</v-icon>
                   </v-btn>
-                  <v-toolbar-title>Settings</v-toolbar-title>
+                  <v-toolbar-title>Change username</v-toolbar-title>
                   <v-spacer></v-spacer>
                   <v-toolbar-items>
-                    <v-btn dark flat @click.native="dialogUsername = false">Save</v-btn>
+                    <v-btn dark flat @click.native="saveUsername">Save</v-btn>
                   </v-toolbar-items>
                 </v-toolbar>
                 <v-container>
@@ -76,7 +76,7 @@
                     <v-flex xs12 sm6 offset-sm3>
                       <v-card>
                         <v-card-text>
-                          <v-form v-model="valid" ref="form" lazy-validation>
+                          <v-form v-model="valid" ref="form">
                             <v-text-field
                             label="New username"
                             v-model="username"
@@ -97,9 +97,9 @@
               <v-card>
                 <v-toolbar dark color="primary">
                   <v-btn icon @click.native="dialogEmail = false" dark>
-                    <v-icon>close</v-icon>
+                    <v-icon>chevron_left</v-icon>
                   </v-btn>
-                  <v-toolbar-title>Settings</v-toolbar-title>
+                  <v-toolbar-title>Change email</v-toolbar-title>
                   <v-spacer></v-spacer>
                   <v-toolbar-items>
                     <v-btn dark flat @click.native="dialogEmail = false">Save</v-btn>
@@ -110,7 +110,7 @@
                     <v-flex xs12 sm6 offset-sm3>
                       <v-card>
                         <v-card-text>
-                          <v-form v-model="valid" ref="form" lazy-validation>
+                          <v-form v-model="valid" ref="form">
                             <v-text-field
                             label="New email"
                             v-model="email0"
@@ -136,9 +136,9 @@
               <v-card>
                 <v-toolbar dark color="primary">
                   <v-btn icon @click.native="dialogPassword = false" dark>
-                    <v-icon>close</v-icon>
+                    <v-icon>chevron_left</v-icon>
                   </v-btn>
-                  <v-toolbar-title>Settings</v-toolbar-title>
+                  <v-toolbar-title>Change password</v-toolbar-title>
                   <v-spacer></v-spacer>
                   <v-toolbar-items>
                     <v-btn dark flat @click.native="dialogPassword = false">Save</v-btn>
@@ -149,7 +149,7 @@
                     <v-flex xs12 sm6 offset-sm3>
                       <v-card>
                         <v-card-text>
-                          <v-form v-model="valid" ref="form" lazy-validation>
+                          <v-form v-model="valid" ref="form">
                             <v-text-field
                             label="New password"
                             v-model="password"
@@ -230,10 +230,10 @@
       }
     },
     methods: {
-      save () {
+      saveUsername () {
         if (this.$refs.form.validate()) {
           this.dialogUsername = false
-          this.$store.dispatch('updateUsername', { email: 'jnarbaitz@gmail.com', username: 'fuccboi' })
+          // this.$store.dispatch('updateUsername', { username: this.username })
         }
       },
       clear () {

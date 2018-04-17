@@ -3,24 +3,7 @@ import * as firebase from 'firebase'
 const state = {
   user: null,
   loading: false,
-  error: null,
-  accountList: [
-    {
-      icon: 'perm_identity',
-      title: 'Change Username',
-      path: 'changeUsername'
-    },
-    {
-      icon: 'mail',
-      title: 'Change Email',
-      path: 'changeEmail'
-    },
-    {
-      icon: '',
-      title: 'Change Password',
-      path: 'changePassword'
-    }
-  ]
+  error: null
 }
 
 const getters = {
@@ -63,7 +46,8 @@ const actions = {
         user => {
           const newUser = {
             id: user.uid,
-            email: user.email
+            email: user.email,
+            username: ''
           }
           firebase.database().ref('users/' + user.uid).set(newUser)
             .then(
@@ -86,19 +70,37 @@ const actions = {
         }
       )
   },
-  updateUser ({commit}, payload) {
+  updateUsername ({commit}, payload) {
+    commit('setLoading', true)
+    commit('clearError')
+    var user = firebase.auth().currentUser
+    user.updateProfile(payload.username)
+      .then(
+        () => {
+          console.log('Update successful')
+        }
+      )
+      .catch(
+        error => {
+          commit('setLoading', false)
+          commit('setError', error)
+          console.log(error)
+        }
+      )
+  },
+  /* updateUsername ({commit}, payload) {
     commit('setLoading', true)
     commit('clearError')
     var user = firebase.auth().currentUser
     debugger
-    console.log('payload' + payload.name)
+    console.log('payload' + payload.username)
     user.updateEmail(payload.email)
       .then(
         () => {
           const updateUser = {
             id: user.uid,
             email: payload.email,
-            userName: payload.username,
+            username: payload.username,
             defaultName: 0
           }
           firebase.database().ref('users/' + user.uid).set(updateUser)
@@ -121,7 +123,7 @@ const actions = {
           console.log(error)
         }
       )
-  },
+  }, */
   loginWithGoogle ({commit}) {
     commit('setLoading', true)
     commit('clearError')
