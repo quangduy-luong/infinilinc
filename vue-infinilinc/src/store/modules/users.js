@@ -15,6 +15,9 @@ const getters = {
   },
   error (state) {
     return state.error
+  },
+  getAccountList (state) {
+    return state.accountList
   }
 }
 
@@ -43,7 +46,8 @@ const actions = {
         user => {
           const newUser = {
             id: user.uid,
-            email: user.email
+            email: user.email,
+            username: payload.username
           }
           firebase.database().ref('users/' + user.uid).set(newUser)
             .then(
@@ -66,6 +70,60 @@ const actions = {
         }
       )
   },
+  updateUsername ({commit}, payload) {
+    commit('setLoading', true)
+    commit('clearError')
+    var user = firebase.auth().currentUser
+    user.updateProfile(payload.username)
+      .then(
+        () => {
+          console.log('Update successful')
+        }
+      )
+      .catch(
+        error => {
+          commit('setLoading', false)
+          commit('setError', error)
+          console.log(error)
+        }
+      )
+  },
+  /* updateUsername ({commit}, payload) {
+    commit('setLoading', true)
+    commit('clearError')
+    var user = firebase.auth().currentUser
+    debugger
+    console.log('payload' + payload.username)
+    user.updateEmail(payload.email)
+      .then(
+        () => {
+          const updateUser = {
+            id: user.uid,
+            email: payload.email,
+            username: payload.username,
+            defaultName: 0
+          }
+          firebase.database().ref('users/' + user.uid).set(updateUser)
+            .then(
+              data => {
+                commit('setUser', updateUser)
+              })
+            .catch(
+              error => {
+                console.log(error)
+                commit('setError', error)
+              })
+          commit('setLoading', false)
+        }
+      )
+      .catch(
+        error => {
+          commit('setLoading', false)
+          commit('setError', error)
+          console.log(error)
+        }
+      )
+  }, */
   loginWithGoogle ({commit}) {
     commit('setLoading', true)
     commit('clearError')
@@ -82,7 +140,8 @@ const actions = {
             } else {
               const newUser = {
                 id: result.user.uid,
-                email: result.user.email
+                email: result.user.email,
+                username: result.user.displayName
               }
               firebase.database().ref('users/' + result.user.uid).set(newUser)
                 .then(
@@ -122,7 +181,8 @@ const actions = {
             } else {
               const newUser = {
                 id: result.user.uid,
-                email: result.user.email
+                email: result.user.email,
+                username: result.user.displayName
               }
               firebase.database().ref('users/' + result.user.uid).set(newUser)
                 .then(
@@ -162,7 +222,8 @@ const actions = {
             } else {
               const newUser = {
                 id: result.user.uid,
-                email: result.user.email
+                email: result.user.email,
+                username: result.user.displayName
               }
               firebase.database().ref('users/' + result.user.uid).set(newUser)
                 .then(
@@ -209,7 +270,11 @@ const actions = {
       )
   },
   autoLogin ({commit}, payload) {
-    commit('setUser', {id: payload.uid})
+    firebase.database().ref('users/').once('value', function (snapshot) {
+      var currUser = snapshot.child(payload.uid).val()
+      commit('setUser', currUser)
+      commit('setLoading', false)
+    })
   },
   logout ({commit}) {
     firebase.auth().signOut()

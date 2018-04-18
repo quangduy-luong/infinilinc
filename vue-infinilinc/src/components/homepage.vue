@@ -17,14 +17,23 @@
         </v-jumbotron>
       </v-flex>
       <v-flex xs12 v-if="authenticated">
-        <v-container v-if="links === undefined || links.length < 1">
-          <v-btn @click="onClicked"></v-btn>
+        <v-container fluid>
+          <v-layout row wrap>
+            <v-flex xs8>
+              <v-text-field label="Enter a user ID" v-model="otherUser"></v-text-field>
+            </v-flex>
+            <v-flex xs4>
+              <v-btn @click="createLink">Link</v-btn>
+            </v-flex>
+          </v-layout>
+        </v-container>
+        <v-container v-if="links === null || links === undefined || links.length < 1">
           <span>You do not have any links yet!</span>
         </v-container>
         <v-container v-else fluid>
           <v-layout row wrap>
             <v-flex xs12 v-for="(link, i) in links" :key="i">
-              <infinilinc :link="link"><</infinilinc>
+              <infinilinc :link="link"></infinilinc>
             </v-flex>
           </v-layout>
         </v-container>
@@ -36,6 +45,11 @@
 <script>
   import link from './links/link'
   export default {
+    data () {
+      return {
+        otherUser: ''
+      }
+    },
     computed: {
       authenticated () {
         return this.$store.getters.user !== null
@@ -45,9 +59,9 @@
       }
     },
     methods: {
-      onClicked () {
+      createLink () {
         console.log('clicked')
-        this.$store.dispatch('createLink', {originalUser: 'Wy6kgxj5LCdomvfVL4v6bc6oxXB3', otherUser: 'ofcESrYMhMMImfb3397qgK13nXf1'})
+        this.$store.dispatch('createLink', {originalUser: this.$store.getters.user.id, otherUser: this.otherUser})
       }
     },
     components: {
