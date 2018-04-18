@@ -10,7 +10,7 @@
         <v-layout>
           <v-flex xs12 sm6 offset-sm3>
             <v-card>
-              <v-card-media :src="require('/home/il/infinilinc/vue-infinilinc/src/assets/logo.png')" height="300px">
+              <v-card-media :src="require('@/assets/logo.png')" height="300px">
                   <v-layout column class="media">
                       <v-card-title class="black--text pl-5 pt-5">
                       </v-card-title>
@@ -23,7 +23,7 @@
                     <v-icon color="indigo" class="pl-2">perm_identity</v-icon>
                   </v-list-tile-action>
                   <v-list-tile-content>
-                    <v-list-tile-title class="pl-4">{{ this.user.userName }}</v-list-tile-title>
+                    <v-list-tile-title class="pl-4">{{ this.user.username }}</v-list-tile-title>
                     <v-list-tile-sub-title></v-list-tile-sub-title>
                   </v-list-tile-content>
                   <v-list-tile-action>

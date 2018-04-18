@@ -47,7 +47,7 @@ const actions = {
           const newUser = {
             id: user.uid,
             email: user.email,
-            username: ''
+            username: payload.username
           }
           firebase.database().ref('users/' + user.uid).set(newUser)
             .then(
@@ -140,7 +140,8 @@ const actions = {
             } else {
               const newUser = {
                 id: result.user.uid,
-                email: result.user.email
+                email: result.user.email,
+                username: result.user.displayName
               }
               firebase.database().ref('users/' + result.user.uid).set(newUser)
                 .then(
@@ -180,7 +181,8 @@ const actions = {
             } else {
               const newUser = {
                 id: result.user.uid,
-                email: result.user.email
+                email: result.user.email,
+                username: result.user.displayName
               }
               firebase.database().ref('users/' + result.user.uid).set(newUser)
                 .then(
@@ -220,7 +222,8 @@ const actions = {
             } else {
               const newUser = {
                 id: result.user.uid,
-                email: result.user.email
+                email: result.user.email,
+                username: result.user.displayName
               }
               firebase.database().ref('users/' + result.user.uid).set(newUser)
                 .then(
@@ -267,7 +270,11 @@ const actions = {
       )
   },
   autoLogin ({commit}, payload) {
-    commit('setUser', {id: payload.uid})
+    firebase.database().ref('users/').once('value', function (snapshot) {
+      var currUser = snapshot.child(payload.uid).val()
+      commit('setUser', currUser)
+      commit('setLoading', false)
+    })
   },
   logout ({commit}) {
     firebase.auth().signOut()

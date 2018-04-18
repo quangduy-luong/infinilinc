@@ -35,5 +35,8 @@ new Vue({
         this.$store.dispatch('autoLogin', user)
       }
     })
+    firebase.database().ref('links').on('value', (snapshot) => {
+      this.$store.dispatch('loadLinks')
+    })
   }
 })
