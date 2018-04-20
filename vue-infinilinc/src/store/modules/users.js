@@ -74,36 +74,37 @@ const actions = {
     commit('setLoading', true)
     commit('clearError')
     var user = firebase.auth().currentUser
-    user.updateProfile(payload.username)
-      .then(
-        () => {
-          console.log('Update successful')
-        }
-      )
-      .catch(
-        error => {
-          commit('setLoading', false)
-          commit('setError', error)
-          console.log(error)
-        }
-      )
+
+    const updateUser = {
+      id: user.uid,
+      email: user.email,
+      username: payload.username
+    }
+    firebase.database().ref('users/' + user.uid).update({username: payload.username})
+            .then(
+              data => {
+                commit('setUser', updateUser)
+              })
+            .catch(
+              error => {
+                console.log(error)
+                commit('setError', error)
+              })
+    commit('setLoading', false)
   },
-  /* updateUsername ({commit}, payload) {
+  updateEmail ({commit}, payload) {
     commit('setLoading', true)
     commit('clearError')
     var user = firebase.auth().currentUser
-    debugger
-    console.log('payload' + payload.username)
     user.updateEmail(payload.email)
       .then(
         () => {
           const updateUser = {
             id: user.uid,
             email: payload.email,
-            username: payload.username,
-            defaultName: 0
+            username: this.getters.user.username
           }
-          firebase.database().ref('users/' + user.uid).set(updateUser)
+          firebase.database().ref('users/' + user.uid).update({email: payload.email})
             .then(
               data => {
                 commit('setUser', updateUser)
@@ -123,7 +124,25 @@ const actions = {
           console.log(error)
         }
       )
-  }, */
+  },
+  updatePassword ({commit}, payload) {
+    commit('setLoading', true)
+    commit('clearError')
+    var user = firebase.auth().currentUser
+    user.updatePassword(payload.password)
+      .then(
+        data => {
+          console.log('Password updated.')
+        }
+      )
+      .catch(
+        error => {
+          commit('setLoading', false)
+          commit('setError', error)
+          console.log(error)
+        }
+      )
+  },
   loginWithGoogle ({commit}) {
     commit('setLoading', true)
     commit('clearError')

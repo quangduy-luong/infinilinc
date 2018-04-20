@@ -102,7 +102,7 @@
                   <v-toolbar-title>Change email</v-toolbar-title>
                   <v-spacer></v-spacer>
                   <v-toolbar-items>
-                    <v-btn dark flat @click.native="dialogEmail = false">Save</v-btn>
+                    <v-btn dark flat @click.native="saveEmail">Save</v-btn>
                   </v-toolbar-items>
                 </v-toolbar>
                 <v-container>
@@ -113,13 +113,13 @@
                           <v-form v-model="valid" ref="form">
                             <v-text-field
                             label="New email"
-                            v-model="email0"
+                            v-model="email"
                             :rules="emailRules"
                             required
                             ></v-text-field>
                             <v-text-field
                             label="Confirm email"
-                            v-model="email1"
+                            v-model="email2"
                             :rules="emailRules.concat([compareEmails])"
                             required
                             ></v-text-field>
@@ -141,7 +141,7 @@
                   <v-toolbar-title>Change password</v-toolbar-title>
                   <v-spacer></v-spacer>
                   <v-toolbar-items>
-                    <v-btn dark flat @click.native="dialogPassword = false">Save</v-btn>
+                    <v-btn dark flat @click.native="savePassword">Save</v-btn>
                   </v-toolbar-items>
                 </v-toolbar>
                 <v-container>
@@ -186,10 +186,10 @@
 <script>
   export default {
     data: () => ({
+      valid: true,
       dialogUsername: false,
       dialogEmail: false,
       dialogPassword: false,
-      valid: true,
       username: '',
       email: '',
       email2: '',
@@ -211,7 +211,7 @@
     }),
     computed: {
       compareEmails () {
-        return this.email !== this.email ? 'Emails do not match!' : true
+        return this.email !== this.email2 ? 'Emails do not match!' : true
       },
       comparePasswords () {
         return this.password !== this.password2 ? 'Passwords do not match!' : true
@@ -231,10 +231,22 @@
     },
     methods: {
       saveUsername () {
-        if (this.$refs.form.validate()) {
-          this.dialogUsername = false
-          // this.$store.dispatch('updateUsername', { username: this.username })
-        }
+        // if (this.$refs.form.validate()) {
+        this.dialogUsername = false
+        this.$store.dispatch('updateUsername', { username: this.username })
+        // }
+      },
+      saveEmail () {
+        // if (this.$refs.form.validate()) {
+        this.dialogEmail = false
+        this.$store.dispatch('updateEmail', { email: this.email })
+        // }
+      },
+      savePassword () {
+        // if (this.$refs.form.validate()) {
+        this.dialogPassword = false
+        this.$store.dispatch('updatePassword', { password: this.password })
+        // }
       },
       clear () {
         this.$refs.form.reset()

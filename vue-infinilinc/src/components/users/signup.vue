@@ -32,6 +32,12 @@
                   </v-btn>
                   <v-form v-model="valid" ref="form">
                     <v-text-field
+                    label="Username"
+                    v-model="username"
+                    :rules="usernameRules"
+                    required
+                    ></v-text-field>
+                    <v-text-field
                     label="E-mail"
                     v-model="email"
                     :rules="emailRules"
@@ -77,11 +83,15 @@
   export default {
     data: () => ({
       valid: true,
+      email: '',
+      username: '',
       password: '',
       password2: '',
       passwordVisible: true,
       password2Visible: true,
-      email: '',
+      usernameRules: [
+        (v) => !!v || 'Cannot be empty!'
+      ],
       emailRules: [
         (v) => !!v || 'Cannot be empty!',
         (v) => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'Not a valid email address!'
@@ -120,7 +130,7 @@
       },
       submit () {
         if (this.$refs.form.validate()) {
-          this.$store.dispatch('registerUser', { email: this.email, password: this.password })
+          this.$store.dispatch('registerUser', { email: this.email, username: this.username, password: this.password })
         }
       },
       clear () {
