@@ -110,7 +110,7 @@
                     <v-flex xs12 sm6 offset-sm3>
                       <v-card>
                         <v-card-text>
-                          <v-form v-model="valid" ref="form">
+                          <v-form v-model="valid" ref="form2">
                             <v-text-field
                             label="New email"
                             v-model="email"
@@ -149,7 +149,7 @@
                     <v-flex xs12 sm6 offset-sm3>
                       <v-card>
                         <v-card-text>
-                          <v-form v-model="valid" ref="form">
+                          <v-form v-model="valid" ref="form3">
                             <v-text-field
                             label="New password"
                             v-model="password"
@@ -231,22 +231,22 @@
     },
     methods: {
       saveUsername () {
-        // if (this.$refs.form.validate()) {
-        this.dialogUsername = false
-        this.$store.dispatch('updateUsername', { username: this.username })
-        // }
+        if (this.$refs.form.validate()) {
+          this.dialogUsername = false
+          this.$store.dispatch('updateUsername', { username: this.username })
+        }
       },
       saveEmail () {
-        // if (this.$refs.form.validate()) {
-        this.dialogEmail = false
-        this.$store.dispatch('updateEmail', { email: this.email })
-        // }
+        if (this.$refs.form2.validate()) {
+          this.dialogEmail = false
+          this.$store.dispatch('updateEmail', { email: this.email })
+        }
       },
       savePassword () {
-        // if (this.$refs.form.validate()) {
-        this.dialogPassword = false
-        this.$store.dispatch('updatePassword', { password: this.password })
-        // }
+        if (this.$refs.form3.validate()) {
+          this.dialogPassword = false
+          this.$store.dispatch('updatePassword', { password: this.password })
+        }
       },
       clear () {
         this.$refs.form.reset()
