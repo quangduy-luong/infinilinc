@@ -17,16 +17,6 @@
         </v-jumbotron>
       </v-flex>
       <v-flex xs12 v-if="authenticated">
-        <v-container fluid>
-          <v-layout row wrap>
-            <v-flex xs8>
-              <v-text-field label="Enter a user ID" v-model="otherUser"></v-text-field>
-            </v-flex>
-            <v-flex xs4>
-              <v-btn @click="createLink">Link</v-btn>
-            </v-flex>
-          </v-layout>
-        </v-container>
         <v-container v-if="links === null || links === undefined || links.length < 1">
           <span>You do not have any links yet!</span>
         </v-container>
@@ -59,10 +49,6 @@
       }
     },
     methods: {
-      createLink () {
-        console.log('clicked')
-        this.$store.dispatch('createLink', {originalUser: this.$store.getters.user.id, otherUser: this.otherUser})
-      }
     },
     components: {
       'infinilinc': link

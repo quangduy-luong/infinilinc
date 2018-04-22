@@ -3,7 +3,8 @@ import * as firebase from 'firebase'
 const state = {
   user: null,
   loading: false,
-  error: null
+  error: null,
+  nfc: false
 }
 
 const getters = {
@@ -16,8 +17,8 @@ const getters = {
   error (state) {
     return state.error
   },
-  getAccountList (state) {
-    return state.accountList
+  nfc (state) {
+    return state.nfc
   }
 }
 
@@ -34,6 +35,9 @@ const mutations = {
   },
   clearError (state) {
     state.error = null
+  },
+  setNfc (state, payload) {
+    state.nfc = payload
   }
 }
 
@@ -70,43 +74,33 @@ const actions = {
         }
       )
   },
-  updateUsername ({commit}, payload) {
+  updateUsername ({commit, state}, payload) {
     commit('setLoading', true)
     commit('clearError')
     var user = firebase.auth().currentUser
-    user.updateProfile(payload.username)
-      .then(
-        () => {
-          console.log('Update successful')
-        }
-      )
-      .catch(
-        error => {
-          commit('setLoading', false)
-          commit('setError', error)
-          console.log(error)
-        }
-      )
+    firebase.database().ref('users/' + user.uid).update({username: payload.username})
+            .then(
+              data => {
+                state.user.username = payload.username
+              })
+            .catch(
+              error => {
+                console.log(error)
+                commit('setError', error)
+              })
+    commit('setLoading', false)
   },
-  /* updateUsername ({commit}, payload) {
+  updateEmail ({commit, state}, payload) {
     commit('setLoading', true)
     commit('clearError')
     var user = firebase.auth().currentUser
-    debugger
-    console.log('payload' + payload.username)
     user.updateEmail(payload.email)
       .then(
         () => {
-          const updateUser = {
-            id: user.uid,
-            email: payload.email,
-            username: payload.username,
-            defaultName: 0
-          }
-          firebase.database().ref('users/' + user.uid).set(updateUser)
+          firebase.database().ref('users/' + user.uid).update({email: payload.email})
             .then(
               data => {
-                commit('setUser', updateUser)
+                state.user.email = payload.email
               })
             .catch(
               error => {
@@ -123,7 +117,25 @@ const actions = {
           console.log(error)
         }
       )
-  }, */
+  },
+  updatePassword ({commit}, payload) {
+    commit('setLoading', true)
+    commit('clearError')
+    var user = firebase.auth().currentUser
+    user.updatePassword(payload.password)
+      .then(
+        data => {
+          console.log('Password updated.')
+        }
+      )
+      .catch(
+        error => {
+          commit('setLoading', false)
+          commit('setError', error)
+          console.log(error)
+        }
+      )
+  },
   loginWithGoogle ({commit}) {
     commit('setLoading', true)
     commit('clearError')

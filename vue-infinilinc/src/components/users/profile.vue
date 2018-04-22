@@ -10,11 +10,7 @@
         <v-layout>
           <v-flex xs12 sm6 offset-sm3>
             <v-card>
-              <v-card-media :src="require('@/assets/logo.png')" height="300px">
-                  <v-layout column class="media">
-                      <v-card-title class="black--text pl-5 pt-5">
-                      </v-card-title>
-                  </v-layout>
+              <v-card-media :src="require('@/assets/logo.png')" height="200px" contain>
               </v-card-media>
               <v-divider></v-divider>
               <v-list two-line>
@@ -102,7 +98,7 @@
                   <v-toolbar-title>Change email</v-toolbar-title>
                   <v-spacer></v-spacer>
                   <v-toolbar-items>
-                    <v-btn dark flat @click.native="dialogEmail = false">Save</v-btn>
+                    <v-btn dark flat @click.native="saveEmail">Save</v-btn>
                   </v-toolbar-items>
                 </v-toolbar>
                 <v-container>
@@ -110,16 +106,16 @@
                     <v-flex xs12 sm6 offset-sm3>
                       <v-card>
                         <v-card-text>
-                          <v-form v-model="valid" ref="form">
+                          <v-form v-model="valid" ref="form2">
                             <v-text-field
                             label="New email"
-                            v-model="email0"
+                            v-model="email"
                             :rules="emailRules"
                             required
                             ></v-text-field>
                             <v-text-field
                             label="Confirm email"
-                            v-model="email1"
+                            v-model="email2"
                             :rules="emailRules.concat([compareEmails])"
                             required
                             ></v-text-field>
@@ -141,7 +137,7 @@
                   <v-toolbar-title>Change password</v-toolbar-title>
                   <v-spacer></v-spacer>
                   <v-toolbar-items>
-                    <v-btn dark flat @click.native="dialogPassword = false">Save</v-btn>
+                    <v-btn dark flat @click.native="savePassword">Save</v-btn>
                   </v-toolbar-items>
                 </v-toolbar>
                 <v-container>
@@ -149,7 +145,7 @@
                     <v-flex xs12 sm6 offset-sm3>
                       <v-card>
                         <v-card-text>
-                          <v-form v-model="valid" ref="form">
+                          <v-form v-model="valid" ref="form3">
                             <v-text-field
                             label="New password"
                             v-model="password"
@@ -186,10 +182,10 @@
 <script>
   export default {
     data: () => ({
+      valid: true,
       dialogUsername: false,
       dialogEmail: false,
       dialogPassword: false,
-      valid: true,
       username: '',
       email: '',
       email2: '',
@@ -211,7 +207,7 @@
     }),
     computed: {
       compareEmails () {
-        return this.email !== this.email ? 'Emails do not match!' : true
+        return this.email !== this.email2 ? 'Emails do not match!' : true
       },
       comparePasswords () {
         return this.password !== this.password2 ? 'Passwords do not match!' : true
@@ -233,7 +229,19 @@
       saveUsername () {
         if (this.$refs.form.validate()) {
           this.dialogUsername = false
-          // this.$store.dispatch('updateUsername', { username: this.username })
+          this.$store.dispatch('updateUsername', { username: this.username })
+        }
+      },
+      saveEmail () {
+        if (this.$refs.form2.validate()) {
+          this.dialogEmail = false
+          this.$store.dispatch('updateEmail', { email: this.email })
+        }
+      },
+      savePassword () {
+        if (this.$refs.form3.validate()) {
+          this.dialogPassword = false
+          this.$store.dispatch('updatePassword', { password: this.password })
         }
       },
       clear () {
