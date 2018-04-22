@@ -3,7 +3,8 @@ import * as firebase from 'firebase'
 const state = {
   user: null,
   loading: false,
-  error: null
+  error: null,
+  nfc: false
 }
 
 const getters = {
@@ -16,8 +17,8 @@ const getters = {
   error (state) {
     return state.error
   },
-  getAccountList (state) {
-    return state.accountList
+  nfc (state) {
+    return state.nfc
   }
 }
 
@@ -34,6 +35,9 @@ const mutations = {
   },
   clearError (state) {
     state.error = null
+  },
+  setNfc (state, payload) {
+    state.nfc = payload
   }
 }
 

@@ -30,7 +30,7 @@
           <v-icon color="black">exit_to_app</v-icon>
         </v-list-tile-action>
         <v-list-tile-content>
-          <v-list-tile-title class="black--text">Logout</v-list-tile-title>
+          <v-list-tile-title @click="onLogout" class="black--text">Logout</v-list-tile-title>
         </v-list-tile-content>
       </v-list-tile>
     </v-list>
@@ -53,6 +53,12 @@
           return this.$store.getters.getMenuItems
         }
         return this.$store.getters.getMenuItemsUser
+      }
+    },
+    methods: {
+      onLogout () {
+        this.$router.push('/')
+        this.$store.dispatch('logout')
       }
     }
   }

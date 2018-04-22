@@ -13,6 +13,9 @@
             <v-flex xs12 md6 lg4 offset-md3 offset-lg4>
               <v-text-field disabled label="Your display name" v-model="username"></v-text-field>
             </v-flex>
+            <v-flex xs12 md6 lg4 offset-md3 offset-lg4>
+              <v-text-field disabled label="Received user ID" v-model="newLink"></v-text-field>
+            </v-flex>
           </v-layout>
         </v-container>
       </v-flex>
@@ -34,7 +37,7 @@
       <v-dialog v-model="confirmDialog" persistent max-width="300">
         <v-card>
           <v-card-title>
-            <span class="headline">Connect with {{ newUser }}?</span>
+            <span class="headline">Connect with {{ newLink }}?</span>
           </v-card-title>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -76,9 +79,30 @@
       }
     },
     mounted () {
-      console.log(this.$store.getters.user)
+      /* eslint-disable */
       if (this.$store.getters.user !== null && this.$store.getters.user !== undefined) {
         this.username = this.$store.getters.user.username
+      }
+      nfc.enable()
+      nfc.onConnect = () => {
+        nfc.send(this.$store.getters.user.id)
+      }
+      nfc.onSendComplete = () => {
+        nfc.receive()
+      }
+      nfc.onReceive = (str) => {
+        this.newLink = str
+      },
+      nfc.onReset = () => {
+        nfc.disable()
+      }
+    },
+    beforeDestroy () {
+      nfc.disable
+    },
+    watch: {
+      newLink: function (newStr, oldStr) {
+        this.confirmDialog = true
       }
     }
   }
