@@ -26,7 +26,7 @@ public class MainActivity extends NfcActivity {
     private WebSettings webSettings;
 
     private String appDomain = "infinilinc.firebaseapp.com";
-    private String appPath = "/debug.html";
+    private String appPath = "/";
 
     private View mainLayoutView;
     private View offlineLayoutView;
