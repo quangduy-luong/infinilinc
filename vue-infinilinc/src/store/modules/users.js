@@ -70,20 +70,14 @@ const actions = {
         }
       )
   },
-  updateUsername ({commit}, payload) {
+  updateUsername ({commit, state}, payload) {
     commit('setLoading', true)
     commit('clearError')
     var user = firebase.auth().currentUser
-
-    const updateUser = {
-      id: user.uid,
-      email: user.email,
-      username: payload.username
-    }
     firebase.database().ref('users/' + user.uid).update({username: payload.username})
             .then(
               data => {
-                commit('setUser', updateUser)
+                state.user.username = payload.username
               })
             .catch(
               error => {
@@ -92,22 +86,17 @@ const actions = {
               })
     commit('setLoading', false)
   },
-  updateEmail ({commit}, payload) {
+  updateEmail ({commit, state}, payload) {
     commit('setLoading', true)
     commit('clearError')
     var user = firebase.auth().currentUser
     user.updateEmail(payload.email)
       .then(
         () => {
-          const updateUser = {
-            id: user.uid,
-            email: payload.email,
-            username: this.getters.user.username
-          }
           firebase.database().ref('users/' + user.uid).update({email: payload.email})
             .then(
               data => {
-                commit('setUser', updateUser)
+                state.user.email = payload.email
               })
             .catch(
               error => {

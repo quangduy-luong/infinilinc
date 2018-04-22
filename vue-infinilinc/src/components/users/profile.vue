@@ -10,11 +10,7 @@
         <v-layout>
           <v-flex xs12 sm6 offset-sm3>
             <v-card>
-              <v-card-media :src="require('@/assets/logo.png')" height="300px">
-                  <v-layout column class="media">
-                      <v-card-title class="black--text pl-5 pt-5">
-                      </v-card-title>
-                  </v-layout>
+              <v-card-media :src="require('@/assets/logo.png')" height="300px" contain>
               </v-card-media>
               <v-divider></v-divider>
               <v-list two-line>
