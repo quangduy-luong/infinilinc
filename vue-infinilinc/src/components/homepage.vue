@@ -1,6 +1,9 @@
 <template>
   <v-container fluid py-0 px-0>
     <v-layout row wrap>
+      <v-flex xs12 v-if="nfcEnabled">
+        <span class="title">NFC IS ENABLED</span>
+      </v-flex>
       <v-flex xs12  v-if="!authenticated">
         <v-jumbotron color="grey lighten-1">
           <v-container fill-height>
@@ -25,6 +28,9 @@
             <v-flex xs4>
               <v-btn @click="createLink">Link</v-btn>
             </v-flex>
+            <v-flex xs12>
+              <v-btn to="connect">Connect</v-btn>
+            </v-flex>
           </v-layout>
         </v-container>
         <v-container v-if="links === null || links === undefined || links.length < 1">
@@ -47,7 +53,8 @@
   export default {
     data () {
       return {
-        otherUser: ''
+        otherUser: '',
+        nfcEnabled: false
       }
     },
     computed: {
@@ -66,6 +73,14 @@
     },
     components: {
       'infinilinc': link
+    },
+    mounted () {
+      try {
+        nfc.exists()
+        this.nfcEnabled = true
+      } catch (e) {
+        console.log('The app cannot detect NFC')
+      }
     }
   }
 </script>

@@ -5,6 +5,7 @@ import profile from '@/components/users/profile'
 import signin from '@/components/users/signin'
 import signup from '@/components/users/signup'
 import chat from '@/components/conversations/chat'
+import connect from '@/components/links/connect'
 
 Vue.use(Router)
 
@@ -34,6 +35,11 @@ export default new Router({
       path: '/chat',
       name: 'chat',
       component: chat
+    },
+    {
+      path: '/connect',
+      name: 'connect',
+      component: connect
     }
   ],
   mode: 'history'

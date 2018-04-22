@@ -3,7 +3,6 @@
     <sidebar/>
       <v-toolbar app clipped-left fixed>
         <v-toolbar-side-icon class="hidden-sm-and-up" @click.stop="toggleSidebar"></v-toolbar-side-icon>
-        <v-spacer></v-spacer>
         <v-toolbar-title>
           <router-link to="/" style="cursor: pointer" tag="span">
             {{ title }}
@@ -20,11 +19,10 @@
           :to="item.path">
             {{ item.title }}
           </v-btn>
-          <v-btn flat v-if="authenticated" @click="onLogout">
+          <v-btn class="hidden-xs-only" flat v-if="authenticated" @click="onLogout">
           Logout
         </v-btn>
         </v-toolbar-items>
-      <v-spacer></v-spacer>
     </v-toolbar>
     <v-content>
       <router-view/>
@@ -55,6 +53,7 @@ export default {
     },
     onLogout () {
       this.$store.dispatch('logout')
+      this.$router.push('/')
     }
   },
   computed: {
