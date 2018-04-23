@@ -47,7 +47,8 @@ const actions = {
           const newUser = {
             id: user.uid,
             email: user.email,
-            username: payload.username
+            username: payload.username,
+            imageUrl: ''
           }
           firebase.database().ref('users/' + user.uid).set(newUser)
             .then(
@@ -60,15 +61,13 @@ const actions = {
                 commit('setError', error)
               })
           commit('setLoading', false)
-        }
-      )
+        })
       .catch(
         error => {
           commit('setLoading', false)
           commit('setError', error)
           console.log(error)
-        }
-      )
+        })
   },
   updateUsername ({commit, state}, payload) {
     commit('setLoading', true)
@@ -104,15 +103,13 @@ const actions = {
                 commit('setError', error)
               })
           commit('setLoading', false)
-        }
-      )
+        })
       .catch(
         error => {
           commit('setLoading', false)
           commit('setError', error)
           console.log(error)
-        }
-      )
+        })
   },
   updatePassword ({commit}, payload) {
     commit('setLoading', true)
@@ -122,15 +119,45 @@ const actions = {
       .then(
         data => {
           console.log('Password updated.')
-        }
-      )
+        })
       .catch(
         error => {
           commit('setLoading', false)
           commit('setError', error)
           console.log(error)
-        }
-      )
+        })
+  },
+  updatePhoto ({commit, state}, payload) {
+    commit('setLoading', true)
+    commit('clearError')
+    var user = firebase.auth().currentUser
+    var key = user.key
+
+    let imageUrl
+    const filename = payload.image.name
+    const ext = filename.slice(filename.lastIndexOf('.'))
+    return firebase.storage().ref('users/' + key + '.' + ext).put(payload.image)
+      .then(
+        fileData => {
+          imageUrl = fileData.metadata.downloadURLs[0]
+          commit('setLoading', false)
+          return firebase.database().ref('users/' + user.uid).update({imageUrl: imageUrl})
+            .then(
+              data => {
+                state.user.imageUrl = imageUrl
+              })
+            .catch(
+              error => {
+                console.log(error)
+                commit('setError', error)
+              })
+        })
+      .catch(
+        error => {
+          commit('setLoading', false)
+          commit('setError', error)
+          console.log(error)
+        })
   },
   loginWithGoogle ({commit}) {
     commit('setLoading', true)
@@ -149,89 +176,8 @@ const actions = {
               const newUser = {
                 id: result.user.uid,
                 email: result.user.email,
-                username: result.user.displayName
-              }
-              firebase.database().ref('users/' + result.user.uid).set(newUser)
-                .then(
-                  data => {
-                    commit('setUser', newUser)
-                  })
-                .catch(
-                  error => {
-                    console.log(error)
-                    commit('setError', error)
-                  })
-            }
-          })
-          commit('setLoading', false)
-        }
-      )
-      .catch(
-        error => {
-          commit('setLoading', false)
-          commit('setError', error)
-          console.log(error)
-        }
-      )
-  },
-  loginWithFacebook ({commit}) {
-    commit('setLoading', true)
-    commit('clearError')
-    var provider = new firebase.auth.FacebookAuthProvider()
-    firebase.auth().signInWithPopup(provider)
-      .then(
-        result => {
-          firebase.database().ref('users/').once('value', function (snapshot) {
-            if (snapshot.hasChild(result.user.uid)) {
-              var currUser = snapshot.child(result.user.uid).val()
-              currUser.id = result.user.uid
-              commit('setUser', currUser)
-            } else {
-              const newUser = {
-                id: result.user.uid,
-                email: result.user.email,
-                username: result.user.displayName
-              }
-              firebase.database().ref('users/' + result.user.uid).set(newUser)
-                .then(
-                  data => {
-                    commit('setUser', newUser)
-                  })
-                .catch(
-                  error => {
-                    console.log(error)
-                    commit('setError', error)
-                  })
-            }
-          })
-          commit('setLoading', false)
-        }
-      )
-      .catch(
-        error => {
-          commit('setLoading', false)
-          commit('setError', error)
-          console.log(error)
-        }
-      )
-  },
-  loginWithTwitter ({commit}) {
-    commit('setLoading', true)
-    commit('clearError')
-    var provider = new firebase.auth.TwitterAuthProvider()
-    firebase.auth().signInWithPopup(provider)
-      .then(
-        result => {
-          firebase.database().ref('users/').once('value', function (snapshot) {
-            if (snapshot.hasChild(result.user.uid)) {
-              var currUser = snapshot.child(result.user.uid).val()
-              currUser.id = result.user.uid
-              commit('setUser', currUser)
-            } else {
-              const newUser = {
-                id: result.user.uid,
-                email: result.user.email,
-                username: result.user.displayName
+                username: result.user.displayName,
+                imageUrl: ''
               }
               firebase.database().ref('users/' + result.user.uid).set(newUser)
                 .then(

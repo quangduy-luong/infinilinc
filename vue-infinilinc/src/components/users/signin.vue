@@ -14,21 +14,9 @@
                 <v-container>
                   <v-btn
                   @click="googleSignup"
-                  :disabled="loading" :loading="loading" block color="white"
-                  >
-                  Sign in with Google
-                  </v-btn>
-                  <v-btn
-                  @click="facebookSignup"
                   :disabled="loading" :loading="loading" block color="primary"
                   >
-                  Sign in with Facebook
-                  </v-btn>
-                  <v-btn
-                  @click="twitterSignup"
-                  :disabled="loading" :loading="loading" block color="secondary"
-                  >
-                  Sign in with Twitter
+                  Sign in with Google
                   </v-btn>
                   <v-form>
                     <v-text-field
@@ -79,14 +67,6 @@
       googleSignup () {
         console.log('Google Sign up')
         this.$store.dispatch('loginWithGoogle')
-      },
-      facebookSignup () {
-        console.log('Facebook Sign up')
-        this.$store.dispatch('loginWithFacebook')
-      },
-      twitterSignup () {
-        console.log('Twitter Sign up')
-        this.$store.dispatch('loginWithTwitter')
       },
       submit () {
         this.$store.dispatch('loginUser', { email: this.email, password: this.password })

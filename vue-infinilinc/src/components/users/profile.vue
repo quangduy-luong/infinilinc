@@ -10,7 +10,25 @@
         <v-layout>
           <v-flex xs12 sm6 offset-sm3>
             <v-card>
-              <v-card-media :src="require('@/assets/logo.png')" height="300px" contain>
+              <v-card-media :src="this.user.imageUrl" height="300px" contain>
+                <v-layout column class="media">
+                  <v-card-title>
+                    <v-spacer></v-spacer>
+                    <v-btn icon class="mr-3" @click="onPickFile">
+                      <v-icon>edit</v-icon>
+                    </v-btn>
+                    <input
+                      type="file"
+                      style="display: none" 
+                      ref="fileInput" 
+                      accept="image/*"
+                      @change="onFilePicked">
+                  </v-card-title>
+                  <v-spacer></v-spacer>
+                  <v-card-title class="white--text pl-5 pt-5">
+                    <div class="display-1 pl-5 pt-5"></div>
+                  </v-card-title>
+                </v-layout>
               </v-card-media>
               <v-divider></v-divider>
               <v-list two-line>
@@ -203,7 +221,9 @@
       passwordRules: [
         (v) => !!v || 'Cannot be empty!',
         (v) => (v && v.length >= 8) || 'Must be at least 8 characters long!'
-      ]
+      ],
+      image: null,
+      imageUrl: ''
     }),
     computed: {
       compareEmails () {
@@ -215,14 +235,8 @@
       user () {
         return this.$store.getters.user
       },
-      error () {
-        return this.$store.getters.error
-      },
       loading () {
         return this.$store.getters.loading
-      },
-      items () {
-        return this.$store.getters.getAccountList
       }
     },
     methods: {
@@ -244,8 +258,22 @@
           this.$store.dispatch('updatePassword', { password: this.password })
         }
       },
-      clear () {
-        this.$refs.form.reset()
+      onPickFile () {
+        this.$refs.fileInput.click()
+      },
+      onFilePicked (event) {
+        const files = event.target.files
+        let filename = files[0].name
+        if (filename.lastIndexOf('.') <= 0) {
+          return alert('Please upload a valid image file.')
+        }
+        const fileReader = new FileReader()
+        fileReader.addEventListener('load', () => {
+          this.imageUrl = fileReader.result
+        })
+        fileReader.readAsDataURL(files[0])
+        this.image = files[0]
+        this.$store.dispatch('updatePhoto', { image: this.image })
       },
       onDismissed () {
         console.log('Alert dismissed!')
