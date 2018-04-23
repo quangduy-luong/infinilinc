@@ -1,5 +1,6 @@
 package com.sjsu.infinilinc.infinilinc;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,11 +10,14 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.ConsoleMessage;
+import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -21,7 +25,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-public class MainActivity extends NfcActivity {
+public class MainActivity extends Activity {
     private WebView mainWebView;
     private WebSettings webSettings;
 
@@ -31,44 +35,53 @@ public class MainActivity extends NfcActivity {
     private View mainLayoutView;
     private View offlineLayoutView;
 
-    @Override
-    void onNfcConnect() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mainWebView.evaluateJavascript(makeJsCallbackString("nfc.onConnect", null), null);
+    private InfinilincNFC nfcDriver = InfinilincNFC.getInstance();
+
+    private boolean nfcReset = false;
+
+    private Handler.Callback handlerCallback = new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            String js, param;
+
+            switch(msg.what) {
+                case InfinilincNFC.EVENT_CONNECTED:
+                    js = makeJsCallbackString("nfc.onConnect", null);
+                    mainWebView.evaluateJavascript(js, null);
+                    break;
+
+                case InfinilincNFC.EVENT_DISCONNECTED:
+                    break;
+
+                case InfinilincNFC.EVENT_SEND_SUCCEEDED:
+                    js = makeJsCallbackString("nfc.onSendComplete", null);
+                    mainWebView.evaluateJavascript(js, null);
+                    break;
+
+                case InfinilincNFC.EVENT_SEND_FAILED:
+                    break;
+
+                case InfinilincNFC.EVENT_RECEIVE_SUCCEEDED:
+                    param = (String)msg.obj;
+
+                    /* Escape any quotes in the string to prevent execution of string */
+                    param = param.replace("\'", "\\\'");
+                    param = param.replace("\"", "\\\"");
+
+                    js = makeJsCallbackString("nfc.onReceive", param);
+                    mainWebView.evaluateJavascript(js, null);
+                    break;
+
+                case InfinilincNFC.EVENT_RECEIVE_FAILED:
+                    break;
+
+                default:
+                    return false;
             }
-        });
-    }
 
-    @Override
-    void onNfcSendComplete(boolean success) {
-        if(success) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mainWebView.evaluateJavascript(makeJsCallbackString("nfc.onSendComplete", null), null);
-                }
-            });
+            return true;
         }
-    }
-
-    @Override
-    void onNfcReceiveComplete(boolean success, String str) {
-        if(success) {
-            /* Escape any quotes in the string to prevent execution of string */
-            String escaped_str = str;
-            escaped_str = escaped_str.replace("\'", "\\\'");
-            escaped_str = escaped_str.replace("\"", "\\\"");
-
-            runOnUiThread(new StrRunnable(escaped_str) {
-                @Override
-                public void run() {
-                    mainWebView.evaluateJavascript(makeJsCallbackString("nfc.onReceive", mStr), null);
-                }
-            });
-        }
-    }
+    };
 
     void onNetStateChange(boolean connected) {
         if(connected) {
@@ -78,18 +91,8 @@ public class MainActivity extends NfcActivity {
             setContentView(offlineLayoutView);
             mainWebView.loadUrl("about:blank");
 
-            disableNfc();
+            nfcDriver.disable();
         }
-    }
-
-    @Override
-    void onNfcReset() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mainWebView.evaluateJavascript(makeJsCallbackString("nfc.onReset", null), null);
-            }
-        });
     }
 
     boolean isNetConnected(Context context) {
@@ -104,6 +107,9 @@ public class MainActivity extends NfcActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        /* Start NFC driver */
+        nfcDriver.init(this, new Handler(handlerCallback));
 
         LayoutInflater inflater = getLayoutInflater();
 
@@ -183,6 +189,28 @@ public class MainActivity extends NfcActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+
+        nfcDriver.suspend();
+        nfcReset = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(nfcReset) {
+            nfcReset = false;
+
+            nfcDriver.resume();
+
+            String js = makeJsCallbackString("nfc.onReset", null);
+            mainWebView.evaluateJavascript(js, null);
+        }
+    }
+
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
     }
@@ -198,5 +226,51 @@ public class MainActivity extends NfcActivity {
         str += ");}";
 
         return str;
+    }
+
+    /* JavaScript API methods */
+
+    /**
+     * Trivial function to allow detection of NFC JS interface
+     *
+     * @return Always returns true
+     */
+    @JavascriptInterface
+    public final boolean exists() {
+        return true;
+    }
+
+    /**
+     * Enables the NFC interface in the configured operating mode
+     */
+    @JavascriptInterface
+    public final void enable() {
+        nfcDriver.enable();
+    }
+
+    /**
+     * Disables the NFC interface
+     */
+    @JavascriptInterface
+    public final void disable() {
+        nfcDriver.disable();
+    }
+
+    /**
+     * Sends a string to the NFC interface
+     *
+     * @param str String to be sent
+     */
+    @JavascriptInterface
+    public final void send(String str) {
+        nfcDriver.send(str);
+    }
+
+    /**
+     * Receives a string from the connected NFC device
+     */
+    @JavascriptInterface
+    public final void receive() {
+        nfcDriver.receive();
     }
 }

@@ -11,10 +11,14 @@ import android.support.v4.content.LocalBroadcastManager;
 import java.util.List;
 
 public class NfcCardService extends HostApduService {
-    static final String ACTION_CONNECT = "ACTION_CONNECT";
-    static final String ACTION_DISCONNECT = "ACTION_DISCONNECT";
-    static final String ACTION_RECEIVED = "ACTION_RECEIVED";
-    static final String ACTION_SEND = "ACTION_SEND";
+    static final String EVENT_CONNECTED = "EVENT_CONNECTED";
+    static final String EVENT_DISCONNECTED = "EVENT_DISCONNECTED";
+    static final String EVENT_RECEIVED_DATA = "EVENT_RECEIVED_DATA";
+    static final String ACTION_SEND_DATA = "ACTION_SEND_DATA";
+    static final String ACTION_ENABLE = "ACTION_ENABLE";
+    static final String ACTION_DISABLE = "ACTION_DISABLE";
+
+    private boolean enabled = false;
 
     private String rxBuffer;
     private String txBuffer;
@@ -27,90 +31,109 @@ public class NfcCardService extends HostApduService {
     private boolean pendingRead = false;
     private boolean txBufferAvailable = false;
 
+    LocalBroadcastManager lbm;
+
+    BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if(action != null) {
+                switch(action) {
+                    case ACTION_ENABLE:
+                        enabled = true;
+                        break;
+
+                    case ACTION_DISABLE:
+                        enabled = false;
+                        break;
+
+                    case ACTION_SEND_DATA:
+                        txBuffer = intent.getStringExtra(Intent.EXTRA_TEXT);
+                        txBufferFrags = null; /* New string: clear the fragment buffer */
+                        txBufferAvailable = true;
+
+                        if(pendingRead) {
+                            /* Send a fragment if a read operation is pending */
+                            pendingRead = false;
+                            sendResponseApdu(getNextTxFragment());
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
 
         /* Configure the receiver intent filter */
         IntentFilter receiverIntentFilter = new IntentFilter();
-        receiverIntentFilter.addAction(ACTION_SEND);
+        receiverIntentFilter.addAction(ACTION_SEND_DATA);
+        receiverIntentFilter.addAction(ACTION_ENABLE);
+        receiverIntentFilter.addAction(ACTION_DISABLE);
 
         /* Install the broadcast receiver */
-        BroadcastReceiver receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-
-                if((action != null) && (action.equals(ACTION_SEND))) {
-                    txBuffer = intent.getStringExtra(Intent.EXTRA_TEXT);
-                    txBufferFrags = null; /* New string: clear the fragment buffer */
-                    txBufferAvailable = true;
-
-                    if(pendingRead) {
-                        /* Send a fragment if a read operation is pending */
-                        pendingRead = false;
-                        sendResponseApdu(getNextTxFragment());
-                    }
-                }
-            }
-        };
-
-        LocalBroadcastManager l = LocalBroadcastManager.getInstance(getApplicationContext());
-        l.registerReceiver(receiver, receiverIntentFilter);
+        lbm = LocalBroadcastManager.getInstance(getApplicationContext());
+        lbm.registerReceiver(receiver, receiverIntentFilter);
     }
 
     @Override
     public byte[] processCommandApdu(byte[] bytes, Bundle bundle) {
-        LocalBroadcastManager l = LocalBroadcastManager.getInstance(getApplicationContext());
+        if(enabled) {
+            NfcCommand cmd = new NfcCommand(bytes);
 
-        Intent intent;
+            switch(cmd.getType()) {
+                case SELECT_AID:
+                    /* Notify app that we've connected */
+                    notifyWorkerThread(EVENT_CONNECTED, null);
 
-        NfcCommand cmd = new NfcCommand(bytes);
-
-        switch(cmd.getType()) {
-            case SELECT_AID:
-                /* Notify app that we've connected */
-                intent = new Intent(ACTION_CONNECT);
-                l.sendBroadcast(intent);
-
-                rxBuffer = "";
-
-                return new NfcResponse(NfcResponse.TYPE.OK).getBytes();
-
-            case SEND:
-                rxBuffer += cmd.getPayloadString();
-
-                if(!cmd.more()) {
-                    /* Send the data buffer to the app */
-                    intent = new Intent(ACTION_RECEIVED);
-                    intent.putExtra(Intent.EXTRA_TEXT, rxBuffer);
-                    l.sendBroadcast(intent);
                     rxBuffer = "";
-                }
 
-                return new NfcResponse(NfcResponse.TYPE.OK).getBytes();
+                    return new NfcResponse(NfcResponse.TYPE.OK).getBytes();
 
-            case SET_DATA_SIZE:
-                fragmentSize = cmd.getDataSize();
+                case SEND:
+                    rxBuffer += cmd.getPayloadString();
 
-                return new NfcResponse(NfcResponse.TYPE.OK).getBytes();
+                    if(!cmd.more()) {
+                        /* Send the data buffer to the app */
+                        notifyWorkerThread(EVENT_RECEIVED_DATA, rxBuffer);
+                        rxBuffer = "";
+                    }
 
-            case READ:
-                if(!txBufferAvailable) {
-                    /* We'll send the response once a string has been provided by the activity */
-                    pendingRead = true;
-                    return null;
-                }
+                    return new NfcResponse(NfcResponse.TYPE.OK).getBytes();
 
-                return getNextTxFragment();
+                case SET_DATA_SIZE:
+                    fragmentSize = cmd.getDataSize();
 
-            default:
-                return new NfcResponse(NfcResponse.TYPE.ERROR).getBytes();
+                    return new NfcResponse(NfcResponse.TYPE.OK).getBytes();
+
+                case READ:
+                    if(!txBufferAvailable) {
+                        /* We'll send the response once a string has been provided by the activity */
+                        pendingRead = true;
+                        return null;
+                    }
+
+                    return getNextTxFragment();
+
+                default:
+                    return new NfcResponse(NfcResponse.TYPE.ERROR).getBytes();
+            }
         }
+
+        return null;
     }
 
     @Override
     public void onDeactivated(int i) {
+        if(enabled) {
+            notifyWorkerThread(EVENT_DISCONNECTED, null);
+        }
     }
 
     private byte[] getNextTxFragment() {
@@ -147,5 +170,14 @@ public class NfcCardService extends HostApduService {
 
         /* Reader is asking for fragment after reading them all -- error */
         return new NfcResponse(NfcResponse.TYPE.ERROR).getBytes();
+    }
+
+    private void notifyWorkerThread(String action, String data) {
+        Intent i = new Intent(action);
+        if(data != null) {
+            i.putExtra(Intent.EXTRA_TEXT, data);
+        }
+
+        lbm.sendBroadcast(i);
     }
 }
