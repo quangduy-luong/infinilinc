@@ -12,12 +12,7 @@
             <v-card>
               <v-card-text>
                 <v-container>
-                  <v-btn
-                  @click="googleSignup"
-                  :disabled="loading" :loading="loading" block color="primary"
-                  >
-                  Sign up with Google
-                  </v-btn>
+                  
                   <v-form v-model="valid" ref="form">
                     <v-text-field
                     label="Username"
@@ -50,12 +45,13 @@
                     required
                     ></v-text-field>
                     <v-btn
+                    block
                     @click="submit"
-                    :disabled="!valid || loading" :loading="loading"
+                    :disabled="!valid || loading" 
+                    :loading="loading"
                     >
                     submit
                     </v-btn>
-                    <v-btn @click="clear">clear</v-btn>
                   </v-form>
                 </v-container>
               </v-card-text>
@@ -104,17 +100,10 @@
       }
     },
     methods: {
-      googleSignup () {
-        console.log('Google Sign up')
-        this.$store.dispatch('loginWithGoogle')
-      },
       submit () {
         if (this.$refs.form.validate()) {
           this.$store.dispatch('registerUser', { email: this.email, username: this.username, password: this.password })
         }
-      },
-      clear () {
-        this.$refs.form.reset()
       },
       onDismissed () {
         console.log('Alert dismissed!')

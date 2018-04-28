@@ -159,49 +159,6 @@ const actions = {
           console.log(error)
         })
   },
-  loginWithGoogle ({commit}) {
-    commit('setLoading', true)
-    commit('clearError')
-    var provider = new firebase.auth.GoogleAuthProvider()
-    firebase.auth().signInWithPopup(provider)
-      .then(
-        result => {
-          console.log(result)
-          firebase.database().ref('users/').once('value', function (snapshot) {
-            if (snapshot.hasChild(result.user.uid)) {
-              var currUser = snapshot.child(result.user.uid).val()
-              currUser.id = result.user.uid
-              commit('setUser', currUser)
-            } else {
-              const newUser = {
-                id: result.user.uid,
-                email: result.user.email,
-                username: result.user.displayName,
-                imageUrl: ''
-              }
-              firebase.database().ref('users/' + result.user.uid).set(newUser)
-                .then(
-                  data => {
-                    commit('setUser', newUser)
-                  })
-                .catch(
-                  error => {
-                    console.log(error)
-                    commit('setError', error)
-                  })
-            }
-          })
-          commit('setLoading', false)
-        }
-      )
-      .catch(
-        error => {
-          commit('setLoading', false)
-          commit('setError', error)
-          console.log(error)
-        }
-      )
-  },
   loginUser ({commit}, payload) {
     commit('setLoading', true)
     commit('clearError')

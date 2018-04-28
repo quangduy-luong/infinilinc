@@ -12,12 +12,6 @@
             <v-card>
               <v-card-text>
                 <v-container>
-                  <v-btn
-                  @click="googleSignup"
-                  :disabled="loading" :loading="loading" block color="primary"
-                  >
-                  Sign in with Google
-                  </v-btn>
                   <v-form>
                     <v-text-field
                     label="E-mail"
@@ -31,7 +25,14 @@
                     required
                     ></v-text-field>
                     <v-card-actions>
-                      <v-btn @click="submit" :disabled="loading" :loading="loading">Sign in</v-btn>
+                      <v-btn 
+                      block 
+                      @click="submit" 
+                      :disabled="loading" 
+                      :loading="loading"
+                      >
+                      Sign in
+                      </v-btn>
                     </v-card-actions>
                   </v-form>
                 </v-container>
@@ -64,10 +65,6 @@
       }
     },
     methods: {
-      googleSignup () {
-        console.log('Google Sign up')
-        this.$store.dispatch('loginWithGoogle')
-      },
       submit () {
         this.$store.dispatch('loginUser', { email: this.email, password: this.password })
       },
