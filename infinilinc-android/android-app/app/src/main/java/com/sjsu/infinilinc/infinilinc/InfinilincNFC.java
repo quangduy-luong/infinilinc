@@ -427,4 +427,11 @@ class InfinilincNFC {
             suspended = false;
         }
     }
+
+    void destroy() {
+        if(initialized) {
+            suspend();
+            worker.quitSafely();
+        }
+    }
 }
