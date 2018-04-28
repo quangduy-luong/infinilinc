@@ -26,18 +26,19 @@ import java.util.concurrent.locks.ReentrantLock;
 class InfinilincNFC {
     private static InfinilincNFC instance = null;
 
+    private static int TIMER_MIN_MS = 300;
+    private static int TIMER_MAX_MS = 2000;
+
     private static final int NFC_READER_FLAGS = NfcAdapter.FLAG_READER_NFC_A
             | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK;
 
-    private static final int TIMER_DELAY_MS = 150;
-
-    static final int MSG_TIMER               = 0x0;
-    static final int CMD_ENABLE              = 0x1;
-    static final int CMD_DISABLE             = 0x2;
-    static final int CMD_SEND                = 0x3;
-    static final int CMD_RECEIVE             = 0x4;
-    //static final int CMD_GET_ENABLED         = 0x5;
-    static final int CMD_INIT                = 0x6;
+    private static final int MSG_TIMER               = 0x0;
+    private static final int CMD_ENABLE              = 0x1;
+    private static final int CMD_DISABLE             = 0x2;
+    private static final int CMD_SEND                = 0x3;
+    private static final int CMD_RECEIVE             = 0x4;
+    //private static final int CMD_GET_ENABLED         = 0x5;
+    private static final int CMD_INIT                = 0x6;
 
     static final int EVENT_CONNECTED         = 0x7;
     static final int EVENT_DISCONNECTED      = 0x8;
@@ -86,16 +87,14 @@ class InfinilincNFC {
             switch(msg.what) {
                 case MSG_TIMER:
                     if(enabled) {
-                        if(mode == 1) {
-                            /* Reader mode, wait for critical section */
-                            readerModeLock.lock();
-                            readerModeLock.unlock();
-                        }
+                        readerModeLock.lock();
 
                         if(!connected) {
                             enableRandomMode();
                             startTimer();
                         }
+
+                        readerModeLock.unlock();
                     }
                     break;
 
@@ -353,16 +352,15 @@ class InfinilincNFC {
         if(mode == 0) {
             /* Card emulation */
             adapter.disableReaderMode(parentActivity);
-            Log.d("fdsa", "chose card mode");
         } else {
             /* Reader */
             adapter.enableReaderMode(parentActivity, readerCallback, NFC_READER_FLAGS, null);
-            Log.d("fdsa", "chose reader mode");
         }
     }
 
     private void startTimer() {
-        workerHandler.sendEmptyMessageDelayed(MSG_TIMER, TIMER_DELAY_MS);
+        int delay = (rng.nextInt() % (TIMER_MAX_MS - TIMER_MIN_MS)) + TIMER_MIN_MS;
+        workerHandler.sendEmptyMessageDelayed(MSG_TIMER, delay);
     }
 
     private void notifyCardSvc(String action, String data) {

@@ -18,12 +18,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
-import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 
 public class MainActivity extends Activity {
     private WebView mainWebView;
@@ -83,6 +81,21 @@ public class MainActivity extends Activity {
         }
     };
 
+    /* Broadcast receiver to handle changes in network state */
+    BroadcastReceiver br = new BroadcastReceiver() {
+        @Override
+        public void onReceive(final Context context, Intent intent) {
+            if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        onNetStateChange(isNetConnected(context));
+                    }
+                });
+            }
+        }
+    };
+
     void onNetStateChange(boolean connected) {
         if(connected) {
             setContentView(mainLayoutView);
@@ -134,17 +147,8 @@ public class MainActivity extends Activity {
 
         mainWebView.setWebChromeClient(new WebChromeClient() {
             @Override
-            public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-                /* In the app, JS alerts should only be used for debugging */
-                Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
-
-                result.confirm();
-                return true;
-            }
-
-            @Override
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                Log.d(getClass().getName(), consoleMessage.sourceId() + ":" +
+                Log.d("JavaScript console", consoleMessage.sourceId() + ":" +
                         consoleMessage.lineNumber() + " -- " + consoleMessage.message());
                 return true;
             }
@@ -152,31 +156,12 @@ public class MainActivity extends Activity {
 
         webSettings = mainWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webSettings.setDomStorageEnabled(true);
 
         mainWebView.addJavascriptInterface(this, "nfc");
 
         /* Do an initial check on the network state before setting up the broadcast receiver */
         onNetStateChange(isNetConnected(this));
-
-        /* Broadcast receiver to handle changes in network state */
-        BroadcastReceiver br = new BroadcastReceiver() {
-            @Override
-            public void onReceive(final Context context, Intent intent) {
-                if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            onNetStateChange(isNetConnected(context));
-                        }
-                    });
-                }
-            }
-        };
-
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-
-        registerReceiver(br, filter);
     }
 
     @Override
@@ -192,6 +177,8 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
 
+        unregisterReceiver(br);
+
         nfcDriver.suspend();
         nfcReset = true;
     }
@@ -199,6 +186,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(br, filter);
 
         if(nfcReset) {
             nfcReset = false;
