@@ -157,6 +157,7 @@ public class MainActivity extends Activity {
         webSettings = mainWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
         mainWebView.addJavascriptInterface(this, "nfc");
 
