@@ -25,6 +25,7 @@
       <v-list-tile
         value="true"
         @click="visible = !visible"
+        v-if="authenticated"
       >
         <v-list-tile-action>
           <v-icon color="black">exit_to_app</v-icon>
@@ -53,6 +54,9 @@
           return this.$store.getters.getMenuItems
         }
         return this.$store.getters.getMenuItemsUser
+      },
+      authenticated () {
+        return this.$store.getters.user !== null && this.$store.getters.user !== undefined
       }
     },
     methods: {
