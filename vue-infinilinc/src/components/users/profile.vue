@@ -237,6 +237,9 @@
       },
       loading () {
         return this.$store.getters.loading
+      },
+      error () {
+        return this.$store.getters.error
       }
     },
     methods: {
@@ -273,6 +276,7 @@
         })
         fileReader.readAsDataURL(files[0])
         this.image = files[0]
+        console.log('Photo updated!')
         this.$store.dispatch('updatePhoto', { image: this.image })
       },
       onDismissed () {
