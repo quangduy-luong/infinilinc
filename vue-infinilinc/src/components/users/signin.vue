@@ -6,12 +6,20 @@
           <app-alert @dismissed="onDismissed" :text="error.message"></app-alert>
         </v-layout>
       </v-flex>
-      <v-container>
-        <v-layout>
+      <v-jumbotron height="100vh"
+          src="https://i.imgur.com/YlECO0f.png"
+        >
+      <v-container fill-height>
+        <v-layout align-center>
           <v-flex xs12 sm6 offset-sm3>
             <v-card>
+              <v-toolbar dark color="primary" flat>
+                <v-toolbar-title >
+                  Sign In
+                </v-toolbar-title>
+              </v-toolbar>
               <v-card-text>
-                <v-container>
+                <v-container @keyup.enter="submit">
                   <v-form>
                     <v-text-field
                     label="E-mail"
@@ -27,11 +35,11 @@
                     <v-card-actions>
                       <v-btn 
                       block 
-                      @click="submit" 
+                      @click="submit"
                       :disabled="loading" 
                       :loading="loading"
                       >
-                      Sign in
+                      Submit
                       </v-btn>
                     </v-card-actions>
                   </v-form>
@@ -41,6 +49,7 @@
           </v-flex>
         </v-layout>
       </v-container>
+      </v-jumbotron>
     </section>
   </v-container>
 </template>

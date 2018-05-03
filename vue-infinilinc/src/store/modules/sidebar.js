@@ -1,18 +1,6 @@
 const state = {
   menuItems: [
     {
-      icon: 'person_add',
-      title: 'Sign Up',
-      path: 'signup'
-    },
-    {
-      icon: 'lock',
-      title: 'Sign In',
-      path: 'signin'
-    }
-  ],
-  menuItemsUser: [
-    {
       icon: 'person',
       title: 'Profile',
       path: 'profile'
@@ -37,9 +25,6 @@ const getters = {
   },
   getMenuItems (state) {
     return state.menuItems
-  },
-  getMenuItemsUser (state) {
-    return state.menuItemsUser
   }
 }
 

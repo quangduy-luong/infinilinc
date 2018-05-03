@@ -6,6 +6,7 @@
     v-model="visible"
     fixed
     app
+    v-if="!authenticated"
   >
     <v-list>
       <v-list-tile
@@ -50,10 +51,7 @@
         }
       },
       items () {
-        if (this.$store.getters.user === null || this.$store.getters.user === undefined) {
-          return this.$store.getters.getMenuItems
-        }
-        return this.$store.getters.getMenuItemsUser
+        return this.$store.getters.getMenuItems
       },
       authenticated () {
         return this.$store.getters.user !== null && this.$store.getters.user !== undefined

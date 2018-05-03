@@ -5,6 +5,7 @@ import Vuetify from 'vuetify'
 import { store } from './store'
 import sidebar from './components/core/sidebar'
 import alert from './components/core/alert'
+import toolbar from './components/core/toolbar'
 import 'vuetify/dist/vuetify.min.css'
 import * as firebase from 'firebase'
 
@@ -15,6 +16,7 @@ Vue.config.productionTip = false
 // registering components
 Vue.component('sidebar', sidebar)
 Vue.component('app-alert', alert)
+Vue.component('toolbar', toolbar)
 
 /* eslint-disable no-new */
 new Vue({
