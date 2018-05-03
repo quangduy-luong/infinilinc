@@ -18,12 +18,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class MainActivity extends Activity {
+    private static final int INPUT_FILE_REQUEST = 1;
+
     private WebView mainWebView;
     private WebSettings webSettings;
 
@@ -36,6 +39,9 @@ public class MainActivity extends Activity {
     private InfinilincNFC nfcDriver = InfinilincNFC.getInstance();
 
     private boolean nfcReset = false;
+    private boolean netConnected = false;
+
+    private ValueCallback<Uri[]> uploadMessage = null;
 
     private Handler.Callback handlerCallback = new Handler.Callback() {
         @Override
@@ -89,26 +95,30 @@ public class MainActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        onNetStateChange(isNetConnected(context));
+                        onNetStateChange(getNetConnectivity(context));
                     }
                 });
             }
         }
     };
 
-    void onNetStateChange(boolean connected) {
-        if(connected) {
+    void onNetStateChange(boolean gotConnection) {
+        if(gotConnection && !netConnected) {
             setContentView(mainLayoutView);
             mainWebView.loadUrl("https://" + appDomain + appPath);
-        } else {
+
+            netConnected = true;
+        } else if(!gotConnection && netConnected) {
             setContentView(offlineLayoutView);
             mainWebView.loadUrl("about:blank");
 
             nfcDriver.disable();
+
+            netConnected = false;
         }
     }
 
-    boolean isNetConnected(Context context) {
+    boolean getNetConnectivity(Context context) {
         ConnectivityManager cm = (ConnectivityManager)context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -152,17 +162,63 @@ public class MainActivity extends Activity {
                         consoleMessage.lineNumber() + " -- " + consoleMessage.message());
                 return true;
             }
+
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+                if(uploadMessage != null){
+                    uploadMessage.onReceiveValue(null);
+                }
+
+                uploadMessage = filePathCallback;
+
+                Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                contentSelectionIntent.setType("image/*");
+
+                Intent[] intentArray;
+
+                intentArray = new Intent[0];
+
+                Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+                chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
+                chooserIntent.putExtra(Intent.EXTRA_TITLE, "Image Chooser");
+                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+
+                startActivityForResult(chooserIntent, INPUT_FILE_REQUEST);
+
+                return true;
+            }
         });
 
         webSettings = mainWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webSettings.setAllowFileAccess(true);
 
         mainWebView.addJavascriptInterface(this, "nfc");
 
         /* Do an initial check on the network state before setting up the broadcast receiver */
-        onNetStateChange(isNetConnected(this));
+        onNetStateChange(getNetConnectivity(this));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if((requestCode != INPUT_FILE_REQUEST)
+                || (uploadMessage == null)
+                || (data == null)
+                || (resultCode != Activity.RESULT_OK)) {
+            uploadMessage.onReceiveValue(null);
+            uploadMessage = null;
+            return;
+        }
+
+        Uri[] result = new Uri[]{data.getData()};
+
+        uploadMessage.onReceiveValue(result);
+        uploadMessage = null;
     }
 
     @Override

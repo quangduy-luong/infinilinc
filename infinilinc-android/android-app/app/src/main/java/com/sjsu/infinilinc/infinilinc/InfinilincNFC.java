@@ -27,7 +27,7 @@ class InfinilincNFC {
     private static InfinilincNFC instance = null;
 
     private static int TIMER_MIN_MS = 300;
-    private static int TIMER_MAX_MS = 2000;
+    private static int TIMER_MAX_MS = 600;
 
     private static final int NFC_READER_FLAGS = NfcAdapter.FLAG_READER_NFC_A
             | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK;
@@ -136,10 +136,12 @@ class InfinilincNFC {
                 switch(action) {
                     case NfcCardService.EVENT_CONNECTED:
                         connected = true;
+                        Log.d(getClass().getName(), "Connected to Infinilinc device");
                         notifyUiThread(EVENT_CONNECTED, null);
                         break;
 
                     case NfcCardService.EVENT_DISCONNECTED:
+                        Log.d(getClass().getName(), "Disconnect event");
                         connected = false;
                         notifyUiThread(EVENT_DISCONNECTED, null);
                         break;
@@ -210,6 +212,8 @@ class InfinilincNFC {
                 connected = true;
 
                 readerModeLock.unlock();
+
+                Log.d(getClass().getName(), "Connected to Infinilinc device");
 
                 /* Notify UI thread that we're connected */
                 notifyUiThread(EVENT_CONNECTED, null);
