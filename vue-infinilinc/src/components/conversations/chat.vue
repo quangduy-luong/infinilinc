@@ -47,6 +47,8 @@
           date: new Date().toString()
         }
         firebase.database().ref('chats').child(this.currentChat).child('messages').push(msg)
+        firebase.database().ref('chats').child(this.currentChat).child('newest').set(msg.date)
+        firebase.database().ref('chats').child(this.currentChat).child('latest').set(msg.text)
         this.message = ''
       },
       onChildAdded (snapshot) {

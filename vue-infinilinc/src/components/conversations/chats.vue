@@ -8,7 +8,8 @@
         <v-container v-else fluid py-0 px-0>
           <v-list two-line>
             <v-subheader >Recent</v-subheader>
-            <chat-tile v-for="(chat, i) in chats" :key="i" :chat="chat" :users="chat.users" :usernames="chat.usernames"></chat-tile>
+            <v-divider></v-divider>
+            <chat-tile v-for="(chat, i) in chats" :key="i" :chat="chat" :users="chat.users" :usernames="chat.usernames" :message="chat.latest"></chat-tile>
           </v-list>
         </v-container>
       </v-flex>
@@ -37,10 +38,12 @@
     methods: {
       onChildAdded (snapshot) {
         var chat = { key: snapshot.key }
-        firebase.database().ref('chats').child(chat.key).child('users').once('value', (snapshot) => {
+        firebase.database().ref('chats').child(chat.key).on('value', (snapshot) => {
           chat.users = []
-          for (var i = 0; i < snapshot.val().length; i++) {
-            let user = snapshot.val()[i]
+          chat.newest = snapshot.val().newest
+          chat.latest = snapshot.val().latest
+          for (var i = 0; i < snapshot.val().users.length; i++) {
+            let user = snapshot.val().users[i]
             let links = this.$store.getters.links
             let name = links[user] === null || links[user] === undefined ? 'User' : links[user].username
             if (user !== this.$store.getters.user.id) {
@@ -56,12 +59,15 @@
           }
         })
         this.chats.push(chat)
-        console.log(chat)
+        /* eslint-disable */
       }
     },
     mounted () {
       this.usersChatRef = firebase.database().ref('users/' + this.$store.getters.user.id + '/chats')
       this.usersChatRef.on('child_added', this.onChildAdded)
+      setInterval(() => {
+        this.chats.sort((a, b) => new Date(b.newest) - new Date(a.newest))
+      }, 100)
     }
   }
 </script>

@@ -135,7 +135,7 @@ const actions = {
     commit('setLoading', true)
     commit('clearError')
     var user = firebase.auth().currentUser
-    var key = user.key
+    var key = user.uid
 
     let imageUrl
     const filename = payload.image.name
