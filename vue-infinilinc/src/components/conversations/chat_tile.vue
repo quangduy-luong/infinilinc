@@ -36,7 +36,7 @@
       onChat () {
         this.$store.commit('setCurrentChat', this.chat.key)
         this.$router.push('/chat')
-      },
+      }
     },
     props: ['chat', 'users', 'usernames'],
     /* eslint-disable */
