@@ -32,13 +32,12 @@ class InfinilincNFC {
     private static final int NFC_READER_FLAGS = NfcAdapter.FLAG_READER_NFC_A
             | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK;
 
-    private static final int MSG_TIMER               = 0x0;
-    private static final int CMD_ENABLE              = 0x1;
-    private static final int CMD_DISABLE             = 0x2;
-    private static final int CMD_SEND                = 0x3;
-    private static final int CMD_RECEIVE             = 0x4;
-    //private static final int CMD_GET_ENABLED         = 0x5;
-    private static final int CMD_INIT                = 0x6;
+    private static final int MSG_TIMER       = 0x0;
+    private static final int CMD_ENABLE      = 0x1;
+    private static final int CMD_DISABLE     = 0x2;
+    private static final int CMD_SEND        = 0x3;
+    private static final int CMD_RECEIVE     = 0x4;
+    private static final int CMD_INIT        = 0x6;
 
     static final int EVENT_CONNECTED         = 0x7;
     static final int EVENT_DISCONNECTED      = 0x8;
@@ -51,7 +50,6 @@ class InfinilincNFC {
     private Lock readerModeLock = new ReentrantLock();
     private boolean initialized = false;
 
-    private Activity parentActivity;
     private HandlerThread worker;
     private Handler uiThreadHandler;
     private Handler workerHandler;
@@ -84,14 +82,16 @@ class InfinilincNFC {
     private Handler.Callback handlerCallback = new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
+            ThreadCommBundle bundle = (ThreadCommBundle)msg.obj;
+
             switch(msg.what) {
                 case MSG_TIMER:
                     if(enabled) {
                         readerModeLock.lock();
 
                         if(!connected) {
-                            enableRandomMode();
-                            startTimer();
+                            enableRandomMode(bundle.activity);
+                            startTimer(bundle.activity);
                         }
 
                         readerModeLock.unlock();
@@ -99,15 +99,15 @@ class InfinilincNFC {
                     break;
 
                 case CMD_ENABLE:
-                    handleEnable();
+                    handleEnable(bundle.activity);
                     break;
 
                 case CMD_DISABLE:
-                    handleDisable();
+                    handleDisable(bundle.activity);
                     break;
 
                 case CMD_SEND:
-                    handleSend((String)msg.obj);
+                    handleSend(bundle.str);
                     break;
 
                 case CMD_RECEIVE:
@@ -115,7 +115,7 @@ class InfinilincNFC {
                     break;
 
                 case CMD_INIT:
-                    initialized = startDriver(parentActivity);
+                    initialized = startDriver(bundle.activity);
                     initSemaphore.release();
                     break;
 
@@ -233,7 +233,6 @@ class InfinilincNFC {
 
     boolean init(Activity activity, Handler handler) {
         if(!initialized) {
-            parentActivity = activity;
             uiThreadHandler = handler;
 
             adapter = NfcAdapter.getDefaultAdapter(activity);
@@ -243,7 +242,10 @@ class InfinilincNFC {
 
             workerHandler = new Handler(worker.getLooper(), handlerCallback);
 
-            workerHandler.sendEmptyMessage(CMD_INIT);
+            ThreadCommBundle bundle = new ThreadCommBundle();
+            bundle.activity = activity;
+
+            notifyWorkerThread(CMD_INIT, bundle);
 
             try {
                 initSemaphore.acquire();
@@ -275,18 +277,18 @@ class InfinilincNFC {
         return true;
     }
 
-    private void handleEnable() {
+    private void handleEnable(Activity activity) {
         /* Enable card service. If reader mode is started, it will override the card service */
         notifyCardSvc(NfcCardService.ACTION_ENABLE, null);
 
-        enableRandomMode();
-        startTimer();
+        enableRandomMode(activity);
+        startTimer(activity);
 
         enabled = true;
     }
 
-    private void handleDisable() {
-        adapter.disableReaderMode(parentActivity);
+    private void handleDisable(Activity activity) {
+        adapter.disableReaderMode(activity);
         notifyCardSvc(NfcCardService.ACTION_DISABLE, null);
 
         enabled = false;
@@ -347,7 +349,7 @@ class InfinilincNFC {
         }
     }
 
-    private void enableRandomMode() {
+    private void enableRandomMode(Activity activity) {
         mode = rng.nextInt() & 1;
 
         /* Assuming the card service is already running, toggling reader mode is sufficient to
@@ -355,16 +357,24 @@ class InfinilincNFC {
 
         if(mode == 0) {
             /* Card emulation */
-            adapter.disableReaderMode(parentActivity);
+            adapter.disableReaderMode(activity);
         } else {
             /* Reader */
-            adapter.enableReaderMode(parentActivity, readerCallback, NFC_READER_FLAGS, null);
+            adapter.enableReaderMode(activity, readerCallback, NFC_READER_FLAGS, null);
         }
     }
 
-    private void startTimer() {
+    private void startTimer(Activity activity) {
         int delay = (rng.nextInt() % (TIMER_MAX_MS - TIMER_MIN_MS)) + TIMER_MIN_MS;
-        workerHandler.sendEmptyMessageDelayed(MSG_TIMER, delay);
+
+        ThreadCommBundle bundle = new ThreadCommBundle();
+        bundle.activity = activity;
+
+        Message m = new Message();
+        m.what = MSG_TIMER;
+        m.obj = bundle;
+
+        workerHandler.sendMessageDelayed(m, delay);
     }
 
     private void notifyCardSvc(String action, String data) {
@@ -396,45 +406,58 @@ class InfinilincNFC {
         workerHandler.sendMessage(m);
     }
 
-    void enable() {
-        notifyWorkerThread(CMD_ENABLE, null);
+    void enable(Activity activity) {
+        ThreadCommBundle bundle = new ThreadCommBundle();
+        bundle.activity = activity;
+
+        notifyWorkerThread(CMD_ENABLE, bundle);
     }
 
-    void disable() {
-        notifyWorkerThread(CMD_DISABLE, null);
+    void disable(Activity activity) {
+        ThreadCommBundle bundle = new ThreadCommBundle();
+        bundle.activity = activity;
+
+        notifyWorkerThread(CMD_DISABLE, bundle);
     }
 
-    void send(String str) {
-        notifyWorkerThread(CMD_SEND, str);
+    void send(Activity activity, String str) {
+        ThreadCommBundle bundle = new ThreadCommBundle();
+        bundle.activity = activity;
+        bundle.str = str;
+
+        notifyWorkerThread(CMD_SEND, bundle);
     }
 
-    void receive() {
-        notifyWorkerThread(CMD_RECEIVE, null);
+    void receive(Activity activity) {
+        ThreadCommBundle bundle = new ThreadCommBundle();
+        bundle.activity = activity;
+
+        notifyWorkerThread(CMD_RECEIVE, bundle);
     }
 
-    void suspend() {
+    void suspend(Activity activity) {
         if(!suspended) {
             /* Unbind from the card service and disable reader mode */
-            parentActivity.unbindService(cardSrvConn);
-            adapter.disableReaderMode(parentActivity);
+            activity.unbindService(cardSrvConn);
+            adapter.disableReaderMode(activity);
 
             suspended = true;
         }
     }
 
-    void resume() {
+    void resume(Activity activity) {
         if(suspended) {
             /* Rebind the card service */
-            Intent serviceIntent = new Intent(parentActivity, NfcCardService.class);
-            parentActivity.bindService(serviceIntent, cardSrvConn, Context.BIND_AUTO_CREATE);
+            Intent serviceIntent = new Intent(activity, NfcCardService.class);
+            activity.bindService(serviceIntent, cardSrvConn, Context.BIND_AUTO_CREATE);
 
             suspended = false;
         }
     }
 
-    void destroy() {
+    void destroy(Activity activity) {
         if(initialized) {
-            suspend();
+            suspend(activity);
             worker.quitSafely();
         }
     }

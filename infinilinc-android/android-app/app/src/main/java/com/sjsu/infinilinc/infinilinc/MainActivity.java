@@ -112,7 +112,7 @@ public class MainActivity extends Activity {
             setContentView(offlineLayoutView);
             mainWebView.loadUrl("about:blank");
 
-            nfcDriver.disable();
+            nfcDriver.disable(this);
 
             netConnected = false;
         }
@@ -236,7 +236,7 @@ public class MainActivity extends Activity {
 
         unregisterReceiver(br);
 
-        nfcDriver.suspend();
+        nfcDriver.suspend(this);
         nfcReset = true;
     }
 
@@ -250,7 +250,7 @@ public class MainActivity extends Activity {
         if(nfcReset) {
             nfcReset = false;
 
-            nfcDriver.resume();
+            nfcDriver.resume(this);
 
             String js = makeJsCallbackString("nfc.onReset", null);
             mainWebView.evaluateJavascript(js, null);
@@ -261,7 +261,7 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
 
-        nfcDriver.destroy();
+        nfcDriver.destroy(this);
     }
 
     @Override
@@ -299,7 +299,7 @@ public class MainActivity extends Activity {
      */
     @JavascriptInterface
     public final void enable() {
-        nfcDriver.enable();
+        nfcDriver.enable(this);
     }
 
     /**
@@ -307,7 +307,7 @@ public class MainActivity extends Activity {
      */
     @JavascriptInterface
     public final void disable() {
-        nfcDriver.disable();
+        nfcDriver.disable(this);
     }
 
     /**
@@ -317,7 +317,7 @@ public class MainActivity extends Activity {
      */
     @JavascriptInterface
     public final void send(String str) {
-        nfcDriver.send(str);
+        nfcDriver.send(this, str);
     }
 
     /**
@@ -325,6 +325,6 @@ public class MainActivity extends Activity {
      */
     @JavascriptInterface
     public final void receive() {
-        nfcDriver.receive();
+        nfcDriver.receive(this);
     }
 }
