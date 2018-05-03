@@ -14,7 +14,7 @@
               <v-text-field disabled label="Your display name" v-model="username"></v-text-field>
             </v-flex>
             <v-flex xs12 md6 lg4 offset-md3 offset-lg4>
-              <v-text-field disabled label="Received user ID" v-model="newLink"></v-text-field>
+              <v-text-field disabled label="Received user ID" v-model="newLink.id"></v-text-field>
             </v-flex>
           </v-layout>
         </v-container>
@@ -37,7 +37,7 @@
       <v-dialog v-model="confirmDialog" persistent max-width="300">
         <v-card>
           <v-card-title>
-            <span class="headline">Connect with {{ newLink }}?</span>
+            <span class="headline">Connect with {{ newLink.username }}?</span>
           </v-card-title>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -56,11 +56,18 @@
   export default {
     data () {
       return {
-        newUser: 'Jared',
         newLink: '',
         confirmDialog: false,
         nameDialog: true,
         username: ''
+      }
+    },
+    computed: {
+      errorMessage () {
+        return this.$store.getters.linkFeedback
+      },
+      links () {
+        return this.$store.getters.links
       }
     },
     methods: {
@@ -69,6 +76,7 @@
       },
       onConfirm () {
         this.confirmDialog = false
+        this.$store.dispatch('createLink', { originalUser: this.$store.getters.user.id, otherUser: this.newLink.id, originalUsername: this.username, otherUsername: this.newLink.username })
       },
       onNameCancel () {
         this.nameDialog = false
@@ -85,20 +93,25 @@
       }
       nfc.enable()
       nfc.onConnect = () => {
-        nfc.send(this.$store.getters.user.id)
+        this.$store.commit('setLinkFeedback', 'Sending message now... ')
+        var jString = JSON.stringify({ 'id': this.$store.getters.user.id, 'username': this.username })
+        nfc.send(jString)
       }
       nfc.onSendComplete = () => {
         nfc.receive()
       }
       nfc.onReceive = (str) => {
-        this.newLink = str
+        this.$store.commit('setLinkFeedback', 'Receiving message now... ')
+        var jObj = JSON.parse(str)
+        this.newLink = jObj
+        this.$store.commit('setLinkFeedback', 'Message successfully received ')
       },
       nfc.onReset = () => {
         nfc.disable()
       }
     },
     beforeDestroy () {
-      nfc.disable
+      nfc.disable()
     },
     watch: {
       newLink: function (newStr, oldStr) {

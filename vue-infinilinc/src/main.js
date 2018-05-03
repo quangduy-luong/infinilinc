@@ -28,7 +28,7 @@ new Vue({
       authDomain: 'infinilinc.firebaseapp.com',
       databaseURL: 'https://infinilinc.firebaseio.com',
       projectId: 'infinilinc',
-      storageBucket: 'infinilinc.appspot.com'
+      storageBucket: 'gs://infinilinc.appspot.com'
     })
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
