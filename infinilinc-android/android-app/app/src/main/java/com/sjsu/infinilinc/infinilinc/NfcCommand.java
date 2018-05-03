@@ -125,7 +125,7 @@ class NfcCommand {
             return INVALID;
         }
 
-        dataSize = bytes[2];
+        dataSize = bytes[2] & 0xFF;
 
         return SET_DATA_SIZE;
     }

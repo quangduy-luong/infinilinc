@@ -1,11 +1,18 @@
 package com.sjsu.infinilinc.infinilinc;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
 class NfcHelper {
     static List<byte[]> fragment(byte[] bytes, int fragmentSize) {
-        if((fragmentSize < 0) || ((bytes.length > 0) && (fragmentSize == 0))) {
+        if(fragmentSize < 0) {
+            Log.d("NfcHelper.fragment", "a");
+            throw new RuntimeException();
+        }
+        else if(((bytes.length > 0) && (fragmentSize == 0))) {
+            Log.d("NfcHelper.fragment", "b");
             throw new RuntimeException();
         }
 
