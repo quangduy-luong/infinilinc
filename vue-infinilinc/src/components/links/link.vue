@@ -1,15 +1,15 @@
 <template>
-  <v-container fluid py-0 px-0>
+  <v-container fluid pt-0 pb-1 px-0>
     <v-card color="gray lighten-3" @click.native="onChat">
       <v-layout row wrap>
         <v-flex xs3 pl-2 pt-2>
-          <v-avatar size="90">
-            <img :src="picture" contain></img>
-          </v-avatar>
+          <v-card-media :src="picture" height="90" contain></v-card-media>
         </v-flex>
         <v-flex xs6>
           <v-card-title>
-            <span class="title">{{ link.username }}</span><br>
+            <span class="title">{{ link.username }}</span>
+          </v-card-title>
+          <v-card-title>
             <span class="body-1">Your name: {{ currentUsername }}</span>
           </v-card-title>
         </v-flex>
@@ -36,6 +36,19 @@
                     </v-card>
                   </v-dialog>
                 </v-flex>
+                <v-flex xs12 py-0>
+                  <v-dialog v-model="dialog2">
+                    <v-card>
+                      <v-card-title>
+                        Do you really want to remove {{ link.username }}? All messages will be lost.
+                      </v-card-title>
+                      <v-card-actions>
+                        <v-btn color="primary" @click="onRemove2">Yes</v-btn>
+                        <v-btn color="secondary" @click="dialog2 = false">No</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-flex>
               </v-layout>
             </v-container>
           </v-card-actions>
@@ -53,6 +66,7 @@
         currentUsername: '',
         newUsername: '',
         dialog: false,
+        dialog2: false,
         image: ''
       }
     },
@@ -71,6 +85,10 @@
         this.$router.push('/chat')
       },
       onRemove () {
+        this.dialog2 = true
+      },
+      onRemove2 () {
+        this.dialog2 = false
         this.$store.dispatch('removeLink', this.link)
       },
       onChangeName () {

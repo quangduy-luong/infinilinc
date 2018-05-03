@@ -1,8 +1,8 @@
 <template>
-  <v-layout row wrap>
+  <div>
     <v-list-tile avatar @click="onChat">
       <v-list-tile-avatar>
-        <v-icon large>{{ icon }}</v-icon>
+        <img :src="image">
       </v-list-tile-avatar>
       <v-list-tile-content>
         <v-list-tile-title>{{ names }}</v-list-tile-title>
@@ -10,7 +10,7 @@
       </v-list-tile-content>
     </v-list-tile>
     <v-divider inset></v-divider>
-  </v-layout>
+  </div>
 </template>
 
 <script>
@@ -18,37 +18,38 @@
   export default {
     data () {
       return {
-        icon: 'add',
+        image: '',
         names: '',
         interval1: {},
         interval2: {},
-        lastMessage: 'No messages found.',
+        lastTime: null,
         ref: null
       }
     },
-    methods: {
-      newMessage (snapshot) {
-        this.lastMessage = snapshot.val().text
-        if (this.lastMessage.length > 30) {
-          this.lastMessage = this.lastMessage.substring(0, 30) + '...'
+    computed: {
+      lastMessage () {
+        if (this.message === undefined || this.message.length < 1) {
+          return 'No messages found.'
+        } else {
+          return this.message
         }
-      },
+      }
+    },
+    methods: {
       onChat () {
         this.$store.commit('setCurrentChat', this.chat.key)
         this.$router.push('/chat')
-      },
+      }
     },
-    props: ['chat', 'users', 'usernames'],
+    props: ['chat', 'users', 'usernames', 'message'],
     /* eslint-disable */
     mounted () {
-      this.ref = firebase.database().ref('chats').child(this.chat.key).child('messages').limitToLast(1)
-      this.ref.on('child_added', this.newMessage)
       var self = this
       self.interval1 = setInterval (function () {
         if (self.chat.users !== undefined && self.chat.users.length === 1) {
-          self.$data.icon = 'person'
-        } else {
-          self.$data.icon = 'people'
+          firebase.database().ref('users/' + self.chat.users[0].id).once('value', (snapshot) => {
+            self.image = snapshot.val().imageUrl
+          })
         }
       }, 100)
       self.interval2 = setInterval (function () {

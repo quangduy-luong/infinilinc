@@ -22,41 +22,22 @@
         </v-jumbotron>
       </v-flex>
       <v-flex xs12 v-if="authenticated">
-        <v-container v-if="links === null || links === undefined || links.length < 1">
-          <span>You do not have any links yet!</span>
-        </v-container>
-        <v-container v-else fluid>
-          <v-layout row wrap>
-            <v-flex xs12 v-for="(link, i) in links" :key="i">
-              <infinilinc :link="link"></infinilinc>
-            </v-flex>
-          </v-layout>
-        </v-container>
+        <chats></chats>
       </v-flex>
     </v-layout>
   </v-container>
 </template>
 
 <script>
-  import link from './links/link'
+  import chats from './conversations/chats'
   export default {
-    data () {
-      return {
-        otherUser: ''
-      }
-    },
     computed: {
       authenticated () {
         return this.$store.getters.user !== null
-      },
-      links () {
-        return this.$store.getters.links
       }
     },
-    methods: {
-    },
     components: {
-      'infinilinc': link
+      'chats': chats
     }
   }
 </script>

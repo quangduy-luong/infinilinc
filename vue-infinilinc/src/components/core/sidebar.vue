@@ -6,7 +6,6 @@
     v-model="visible"
     fixed
     app
-    v-if="!authenticated"
   >
     <v-list>
       <v-list-tile

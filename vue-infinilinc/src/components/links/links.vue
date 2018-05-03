@@ -5,7 +5,7 @@
         <v-container v-if="links === null || links === undefined || links.length < 1">
           <span>You do not have any links yet!</span>
         </v-container>
-        <v-container v-else fluid>
+        <v-container v-else fluid px-0 py-0>
           <v-layout row wrap>
             <v-flex xs12 v-for="(link, i) in links" :key="i">
               <infinilinc :link="link"></infinilinc>

@@ -77,6 +77,7 @@
       onConfirm () {
         this.confirmDialog = false
         this.$store.dispatch('createLink', { originalUser: this.$store.getters.user.id, otherUser: this.newLink.id, originalUsername: this.username, otherUsername: this.newLink.username })
+        this.$router.push('/')
       },
       onNameCancel () {
         this.nameDialog = false
