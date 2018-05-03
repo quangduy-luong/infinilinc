@@ -2,7 +2,7 @@
   <v-container fluid class="text-xs-center">
     <v-layout row wrap>
       <v-flex xs12>
-        <img src="http://via.placeholder.com/350x300">
+        <img src="https://i.imgur.com/5lmpNHy.png">
       </v-flex>
       <v-flex xs12>
         <span>Please tap the two phones together</span>
