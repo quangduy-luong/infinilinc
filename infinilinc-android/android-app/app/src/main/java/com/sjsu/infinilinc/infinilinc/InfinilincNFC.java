@@ -27,7 +27,7 @@ class InfinilincNFC {
     private static InfinilincNFC instance = null;
 
     private static int TIMER_MIN_MS = 300;
-    private static int TIMER_MAX_MS = 600;
+    private static int TIMER_MAX_MS = 350;
 
     private static final int NFC_READER_FLAGS = NfcAdapter.FLAG_READER_NFC_A
             | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK;
